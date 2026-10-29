@@ -4,12 +4,12 @@ TILT ESCAPE is a portrait Android game in which the player tilts the device to d
 
 ## Current status
 
-This repository contains the buildable Android Java base. Gameplay, authentication, persistence, settings, and leaderboard features will be added incrementally.
+This repository contains a buildable Android Java prototype with tilt-controlled player motion, a falling obstacle, collision/Game Over, pause/resume, and tap-to-restart behavior. Authentication, persistence, settings, and leaderboard features will be added incrementally.
 
 ## Requirements
 
 - Android Studio with Android SDK 35
-- JDK 17 or newer (Android Studio's bundled JDK is supported)
+- JDK 17 or 21 (Android Studio's bundled JDK is supported)
 
 ## Open and run
 
@@ -28,6 +28,13 @@ On Windows:
 ```
 
 The debug APK is generated at `app/build/outputs/apk/debug/app-debug.apk`.
+
+## Prototype controls
+
+- Hold the device in portrait orientation.
+- Tap the game area to start, resume, or restart after Game Over.
+- Tilt the phone left or right to dodge the falling obstacle.
+- The prototype requires an accelerometer; unsupported devices show an explicit message instead of starting the game.
 
 ## Project configuration
 
