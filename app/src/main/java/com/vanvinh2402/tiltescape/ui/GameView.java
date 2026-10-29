@@ -64,11 +64,18 @@ public final class GameView extends View implements Choreographer.FrameCallback,
         if (!running) {
             return;
         }
+        if (engine.getState() != GameState.PLAYING) {
+            stop();
+            invalidate();
+            return;
+        }
         float deltaSeconds = frameClock.nextDeltaSeconds(frameTimeNanos);
         engine.update(tiltInput.getHorizontalInput(), deltaSeconds);
         invalidate();
-        if (running) {
+        if (running && engine.getState() == GameState.PLAYING) {
             Choreographer.getInstance().postFrameCallback(this);
+        } else {
+            stop();
         }
     }
 
@@ -78,8 +85,10 @@ public final class GameView extends View implements Choreographer.FrameCallback,
         GameState state = engine.getState();
         if (state == GameState.PAUSED) {
             engine.resume();
+            start();
         } else if (state == GameState.READY || state == GameState.GAME_OVER) {
             engine.startOrRestart();
+            start();
         }
         invalidate();
         return true;

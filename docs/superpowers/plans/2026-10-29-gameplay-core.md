@@ -263,4 +263,3 @@ Review against the design, this plan, the Review Focus list, and all ledger ruli
 - [ ] **Step 3: Verify Git hygiene and push**
 
 Confirm no `local.properties`, `.gradle`, `.idea`, `build`, or APK output is tracked; confirm `gradlew` remains mode `100755`; push only after the final clean verification.
-

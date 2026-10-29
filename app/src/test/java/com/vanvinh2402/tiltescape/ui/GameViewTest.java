@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import com.vanvinh2402.tiltescape.game.GameEngine;
 import com.vanvinh2402.tiltescape.game.GameState;
 import com.vanvinh2402.tiltescape.game.WorldRect;
+import com.vanvinh2402.tiltescape.input.TiltInput;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -56,5 +57,34 @@ public final class GameViewTest {
         assertEquals(GameState.PLAYING, engine.getState());
         assertEquals(0.44f, player.getLeft(), EPSILON);
         assertEquals(0.56f, player.getRight(), EPSILON);
+    }
+
+    @Test
+    public void frameLoopDoesNotReadTiltOutsidePlayingAndTapRestartsIt() {
+        GameEngine engine = new GameEngine();
+        CountingTiltInput tiltInput = new CountingTiltInput();
+        GameView view = new GameView(RuntimeEnvironment.getApplication(), engine, tiltInput);
+
+        view.start();
+        view.doFrame(1_000_000_000L);
+        assertEquals(0, tiltInput.readCount);
+
+        view.performClick();
+        view.doFrame(1_016_000_000L);
+        assertEquals(1, tiltInput.readCount);
+
+        engine.pause();
+        view.doFrame(1_032_000_000L);
+        assertEquals(1, tiltInput.readCount);
+    }
+
+    private static final class CountingTiltInput implements TiltInput {
+        int readCount;
+
+        @Override
+        public float getHorizontalInput() {
+            readCount++;
+            return 0.0f;
+        }
     }
 }
