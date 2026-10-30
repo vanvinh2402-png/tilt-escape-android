@@ -9,144 +9,121 @@ public final class GameEngineTest {
     private static final float EPSILON = 0.0001f;
 
     @Test
-    public void initialStateIsReadyAndStartBeginsPlay() {
-        GameEngine engine = new GameEngine();
+    public void newRunStartsAtZeroAndAccumulatesSurvivalScore() {
+        GameEngine engine = engineInLane(0);
+        engine.startNewRun();
+        assertEquals(0, engine.snapshot().getScore());
 
-        assertEquals(GameState.READY, engine.getState());
-
-        engine.startOrRestart();
-
-        assertEquals(GameState.PLAYING, engine.getState());
-    }
-
-    @Test
-    public void repeatedStartDoesNotResetActiveRun() {
-        GameEngine engine = engineWithObstacle(0.10f, -0.20f, 0.0f);
-        engine.startOrRestart();
-        engine.update(1.0f, 0.1f);
-        float movedX = engine.snapshot().getPlayerBounds().getLeft();
-
-        engine.startOrRestart();
-
-        assertEquals(movedX, engine.snapshot().getPlayerBounds().getLeft(), EPSILON);
-    }
-
-    @Test
-    public void pauseAndResumeOnlyApplyToMatchingStates() {
-        GameEngine engine = new GameEngine();
-
-        engine.pause();
-        assertEquals(GameState.READY, engine.getState());
-        engine.resume();
-        assertEquals(GameState.READY, engine.getState());
-
-        engine.startOrRestart();
-        engine.pause();
-        assertEquals(GameState.PAUSED, engine.getState());
-        engine.resume();
-        assertEquals(GameState.PLAYING, engine.getState());
-    }
-
-    @Test
-    public void restartFromGameOverResetsPlayerAndObstacle() {
-        GameEngine engine = engineWithObstacle(0.50f, 0.86f, 0.0f);
-        engine.startOrRestart();
-        engine.update(1.0f, 0.1f);
-        assertEquals(GameState.GAME_OVER, engine.getState());
-
-        engine.startOrRestart();
-        GameSnapshot snapshot = engine.snapshot();
-
-        assertEquals(GameState.PLAYING, snapshot.getState());
-        assertEquals(0.50f, centerX(snapshot.getPlayerBounds()), EPSILON);
-        assertEquals(0.0f, snapshot.getPlayerVelocityX(), EPSILON);
-        assertEquals(0.86f, centerY(snapshot.getObstacleBounds()), EPSILON);
-    }
-
-    @Test
-    public void obstacleMovementUsesElapsedTime() {
-        GameEngine tenSmallSteps = engineWithObstacle(0.10f, 0.10f, 0.20f);
-        GameEngine fiveLargeSteps = engineWithObstacle(0.10f, 0.10f, 0.20f);
-        tenSmallSteps.startOrRestart();
-        fiveLargeSteps.startOrRestart();
-
-        for (int i = 0; i < 10; i++) {
-            tenSmallSteps.update(0.0f, 0.01f);
-        }
-        for (int i = 0; i < 5; i++) {
-            fiveLargeSteps.update(0.0f, 0.02f);
+        for (int i = 0; i < 200; i++) {
+            engine.update(0.0f, 0.05f);
         }
 
-        assertEquals(
-                tenSmallSteps.snapshot().getObstacleBounds().getTop(),
-                fiveLargeSteps.snapshot().getObstacleBounds().getTop(),
-                EPSILON);
+        assertEquals(10.0f, engine.snapshot().getSurvivalSeconds(), EPSILON);
+        assertEquals(100, engine.snapshot().getScore());
     }
 
     @Test
-    public void obstacleLeavingBottomResetsAboveTop() {
-        GameEngine engine = engineWithObstacle(0.10f, 1.10f, 0.20f);
-        engine.startOrRestart();
+    public void invalidAndOversizedDeltasCannotAwardAbnormalTime() {
+        GameEngine engine = engineInLane(0);
+        engine.startNewRun();
+        engine.update(0.0f, Float.NaN);
+        engine.update(0.0f, Float.POSITIVE_INFINITY);
+        engine.update(0.0f, 0.0f);
+        engine.update(0.0f, -1.0f);
+        assertEquals(0.0f, engine.snapshot().getSurvivalSeconds(), EPSILON);
 
-        engine.update(0.0f, 0.1f);
-
-        assertTrue(engine.snapshot().getObstacleBounds().getBottom() <= 0.0f);
-        assertEquals(0.10f, centerX(engine.snapshot().getObstacleBounds()), EPSILON);
+        engine.update(0.0f, 1.0f);
+        assertEquals(0.05f, engine.snapshot().getSurvivalSeconds(), EPSILON);
     }
 
     @Test
-    public void separatedRectanglesRemainPlaying() {
-        GameEngine engine = engineWithObstacle(0.10f, 0.10f, 0.0f);
-        engine.startOrRestart();
-
-        engine.update(0.0f, 0.1f);
-
-        assertEquals(GameState.PLAYING, engine.getState());
-    }
-
-    @Test
-    public void overlapTransitionsToGameOverOnlyOnce() {
-        GameEngine engine = engineWithObstacle(0.50f, 0.86f, 0.0f);
-        engine.startOrRestart();
-        engine.update(0.0f, 0.1f);
-        WorldRect collisionPosition = engine.snapshot().getObstacleBounds();
-
-        engine.update(1.0f, 1.0f);
-
-        assertEquals(GameState.GAME_OVER, engine.getState());
-        assertEquals(collisionPosition.getTop(), engine.snapshot().getObstacleBounds().getTop(), EPSILON);
-    }
-
-    @Test
-    public void pausedAndGameOverStatesDoNotMoveEntities() {
-        GameEngine paused = engineWithObstacle(0.10f, 0.10f, 0.20f);
-        paused.startOrRestart();
+    public void pauseReadyAndGameOverFreezeTimeAndScore() {
+        GameEngine paused = engineInLane(0);
+        paused.startNewRun();
+        paused.update(0.0f, 0.05f);
         paused.pause();
-        GameSnapshot pausedBefore = paused.snapshot();
-        paused.update(1.0f, 1.0f);
+        paused.update(0.0f, 1.0f);
+        assertEquals(0.05f, paused.snapshot().getSurvivalSeconds(), EPSILON);
 
-        assertEquals(pausedBefore.getPlayerBounds().getLeft(), paused.snapshot().getPlayerBounds().getLeft(), EPSILON);
-        assertEquals(pausedBefore.getObstacleBounds().getTop(), paused.snapshot().getObstacleBounds().getTop(), EPSILON);
+        paused.returnToReady();
+        paused.update(0.0f, 1.0f);
+        assertEquals(GameState.READY, paused.getState());
+        assertEquals(0, paused.snapshot().getScore());
 
-        GameEngine over = engineWithObstacle(0.50f, 0.86f, 0.0f);
-        over.startOrRestart();
-        over.update(0.0f, 0.1f);
-        GameSnapshot overBefore = over.snapshot();
+        GameEngine over = engineInLane(2);
+        over.startNewRun();
+        while (over.getState() == GameState.PLAYING) {
+            over.update(0.0f, 0.05f);
+        }
+        int finalScore = over.snapshot().getScore();
+        float finalTime = over.snapshot().getSurvivalSeconds();
         over.update(1.0f, 1.0f);
-
-        assertEquals(overBefore.getPlayerBounds().getLeft(), over.snapshot().getPlayerBounds().getLeft(), EPSILON);
-        assertEquals(overBefore.getObstacleBounds().getTop(), over.snapshot().getObstacleBounds().getTop(), EPSILON);
+        assertEquals(GameState.GAME_OVER, over.getState());
+        assertEquals(finalScore, over.snapshot().getScore());
+        assertEquals(finalTime, over.snapshot().getSurvivalSeconds(), EPSILON);
     }
 
-    private static GameEngine engineWithObstacle(float centerX, float centerY, float speed) {
-        return new GameEngine(new Obstacle(centerX, centerY, speed));
+    @Test
+    public void startNewRunResetsPausedOrGameOverRunAndField() {
+        GameEngine engine = engineInLane(0);
+        engine.startNewRun();
+        engine.update(1.0f, 0.05f);
+        engine.pause();
+
+        engine.startNewRun();
+        GameSnapshot snapshot = engine.snapshot();
+        assertEquals(GameState.PLAYING, snapshot.getState());
+        assertEquals(0, snapshot.getScore());
+        assertEquals(0.0f, snapshot.getSurvivalSeconds(), EPSILON);
+        assertEquals(0.50f, centerX(snapshot.getPlayerBounds()), EPSILON);
+        assertEquals(1, snapshot.getObstacleBounds().size());
+    }
+
+    @Test
+    public void snapshotContainsMultipleObstaclesAndCollisionChecksCollection() {
+        ObstacleField field = new ObstacleField(new SequenceRandomSource(0, 2));
+        GameEngine engine = new GameEngine(field);
+        engine.startNewRun();
+        field.update(0.30f, 1.0f, 0.10f, 2);
+        assertEquals(2, engine.snapshot().getObstacleBounds().size());
+
+        for (int i = 0; i < 100 && engine.getState() == GameState.PLAYING; i++) {
+            engine.update(0.0f, 0.05f);
+        }
+        assertEquals(GameState.GAME_OVER, engine.getState());
+    }
+
+    @Test
+    public void startOrRestartRemainsIdempotentDuringPlay() {
+        GameEngine engine = engineInLane(0);
+        engine.startOrRestart();
+        engine.update(1.0f, 0.05f);
+        float moved = engine.snapshot().getPlayerBounds().getLeft();
+        engine.startOrRestart();
+        assertEquals(moved, engine.snapshot().getPlayerBounds().getLeft(), EPSILON);
+    }
+
+    private static GameEngine engineInLane(int lane) {
+        return new GameEngine(new ObstacleField(new SequenceRandomSource(lane)));
     }
 
     private static float centerX(WorldRect rect) {
         return (rect.getLeft() + rect.getRight()) / 2.0f;
     }
 
-    private static float centerY(WorldRect rect) {
-        return (rect.getTop() + rect.getBottom()) / 2.0f;
+    private static final class SequenceRandomSource implements RandomSource {
+        private final int[] values;
+        private int index;
+
+        SequenceRandomSource(int... values) {
+            this.values = values;
+        }
+
+        @Override
+        public int nextInt(int bound) {
+            int result = values[Math.min(index, values.length - 1)];
+            index++;
+            return result;
+        }
     }
 }

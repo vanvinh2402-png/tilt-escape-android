@@ -42,11 +42,12 @@ public final class GameViewTest {
     public void tapRestartsGameOverAndResetsGeometry() {
         GameEngine engine = new GameEngine();
         engine.startOrRestart();
-        for (int i = 0; i < 6; i++) {
-            engine.update(-1.0f, 0.05f);
-        }
-        for (int i = 0; i < 60 && engine.getState() == GameState.PLAYING; i++) {
-            engine.update(0.0f, 0.05f);
+        for (int i = 0; i < 400 && engine.getState() == GameState.PLAYING; i++) {
+            WorldRect player = engine.snapshot().getPlayerBounds();
+            WorldRect obstacle = engine.snapshot().getObstacleBounds().get(0);
+            float playerCenter = (player.getLeft() + player.getRight()) / 2.0f;
+            float obstacleCenter = (obstacle.getLeft() + obstacle.getRight()) / 2.0f;
+            engine.update(Math.signum(obstacleCenter - playerCenter), 0.05f);
         }
         assertEquals(GameState.GAME_OVER, engine.getState());
         GameView view = new GameView(RuntimeEnvironment.getApplication(), engine, () -> 0.0f);

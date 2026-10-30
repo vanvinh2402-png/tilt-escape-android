@@ -39,100 +39,63 @@ public final class GameView extends View implements Choreographer.FrameCallback,
         setFocusable(true);
     }
 
-    @Override
-    public void start() {
-        if (running) {
-            return;
-        }
+    @Override public void start() {
+        if (running) return;
         running = true;
         frameClock.reset();
         Choreographer.getInstance().postFrameCallback(this);
     }
 
-    @Override
-    public void stop() {
-        if (!running) {
-            return;
-        }
+    @Override public void stop() {
+        if (!running) return;
         running = false;
         Choreographer.getInstance().removeFrameCallback(this);
         frameClock.reset();
     }
 
-    @Override
-    public void doFrame(long frameTimeNanos) {
-        if (!running) {
-            return;
-        }
-        if (engine.getState() != GameState.PLAYING) {
-            stop();
-            invalidate();
-            return;
-        }
-        float deltaSeconds = frameClock.nextDeltaSeconds(frameTimeNanos);
-        engine.update(tiltInput.getHorizontalInput(), deltaSeconds);
+    @Override public void doFrame(long frameTimeNanos) {
+        if (!running) return;
+        if (engine.getState() != GameState.PLAYING) { stop(); invalidate(); return; }
+        engine.update(tiltInput.getHorizontalInput(), frameClock.nextDeltaSeconds(frameTimeNanos));
         invalidate();
         if (running && engine.getState() == GameState.PLAYING) {
             Choreographer.getInstance().postFrameCallback(this);
-        } else {
-            stop();
-        }
+        } else stop();
     }
 
-    @Override
-    public boolean performClick() {
+    @Override public boolean performClick() {
         super.performClick();
-        GameState state = engine.getState();
-        if (state == GameState.PAUSED) {
-            engine.resume();
-            start();
-        } else if (state == GameState.READY || state == GameState.GAME_OVER) {
-            engine.startOrRestart();
-            start();
+        if (engine.getState() == GameState.PAUSED) { engine.resume(); start(); }
+        else if (engine.getState() == GameState.READY || engine.getState() == GameState.GAME_OVER) {
+            engine.startOrRestart(); start();
         }
         invalidate();
         return true;
     }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
+    @Override protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        canvas.drawRect(0.0f, 0.0f, getWidth(), getHeight(), backgroundPaint);
+        canvas.drawRect(0, 0, getWidth(), getHeight(), backgroundPaint);
         GameSnapshot snapshot = engine.snapshot();
-        drawWorldRect(canvas, snapshot.getObstacleBounds(), obstaclePaint);
+        for (WorldRect obstacle : snapshot.getObstacleBounds()) drawWorldRect(canvas, obstacle, obstaclePaint);
         drawWorldRect(canvas, snapshot.getPlayerBounds(), playerPaint);
-
         String label = labelFor(snapshot.getState());
-        if (label != null) {
-            canvas.drawText(label, getWidth() / 2.0f, getHeight() / 2.0f, labelPaint);
-        }
+        if (label != null) canvas.drawText(label, getWidth()/2.0f, getHeight()/2.0f, labelPaint);
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
-        stop();
-        super.onDetachedFromWindow();
-    }
+    @Override protected void onDetachedFromWindow() { stop(); super.onDetachedFromWindow(); }
 
     private void drawWorldRect(Canvas canvas, WorldRect rect, Paint paint) {
-        canvas.drawRect(
-                rect.getLeft() * getWidth(),
-                rect.getTop() * getHeight(),
-                rect.getRight() * getWidth(),
-                rect.getBottom() * getHeight(),
-                paint);
+        canvas.drawRect(rect.getLeft()*getWidth(), rect.getTop()*getHeight(),
+                rect.getRight()*getWidth(), rect.getBottom()*getHeight(), paint);
     }
 
     private static String labelFor(GameState state) {
         switch (state) {
-            case READY:
-                return "TAP TO START";
-            case PAUSED:
-                return "PAUSED - TAP TO RESUME";
-            case GAME_OVER:
-                return "GAME OVER - TAP TO RESTART";
-            default:
-                return null;
+            case READY: return "TAP TO START";
+            case PAUSED: return "PAUSED - TAP TO RESUME";
+            case GAME_OVER: return "GAME OVER - TAP TO RESTART";
+            default: return null;
         }
     }
 }

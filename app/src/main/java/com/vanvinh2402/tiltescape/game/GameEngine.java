@@ -1,64 +1,73 @@
 package com.vanvinh2402.tiltescape.game;
 
 public final class GameEngine {
-    private final PlayerMotion player;
-    private final Obstacle obstacle;
-    private GameState state;
+    private static final float MAX_DELTA_SECONDS = 0.05f;
+    private static final float BASE_SPEED = 0.30f;
+    private static final float BASE_SPAWN_INTERVAL = 1.40f;
+
+    private final PlayerMotion player = new PlayerMotion();
+    private final ObstacleField obstacleField;
+    private GameState state = GameState.READY;
+    private float survivalSeconds;
 
     public GameEngine() {
-        this(new Obstacle(0.25f, -0.04f, 0.35f));
+        this(new ObstacleField(new JavaRandomSource()));
     }
 
-    GameEngine(Obstacle obstacle) {
-        this.player = new PlayerMotion();
-        this.obstacle = obstacle;
-        this.state = GameState.READY;
+    GameEngine(ObstacleField obstacleField) {
+        this.obstacleField = obstacleField;
+        obstacleField.reset();
     }
 
-    public GameState getState() {
-        return state;
-    }
+    public GameState getState() { return state; }
 
     public void startOrRestart() {
-        if (state != GameState.READY && state != GameState.GAME_OVER) {
-            return;
+        if (state == GameState.READY || state == GameState.GAME_OVER) {
+            startNewRun();
         }
+    }
+
+    public void startNewRun() {
         player.reset();
-        obstacle.reset();
+        obstacleField.reset();
+        survivalSeconds = 0.0f;
         state = GameState.PLAYING;
     }
 
+    public void returnToReady() {
+        player.reset();
+        obstacleField.reset();
+        survivalSeconds = 0.0f;
+        state = GameState.READY;
+    }
+
     public void pause() {
-        if (state == GameState.PLAYING) {
-            state = GameState.PAUSED;
-        }
+        if (state == GameState.PLAYING) state = GameState.PAUSED;
     }
 
     public void resume() {
-        if (state == GameState.PAUSED) {
-            state = GameState.PLAYING;
-        }
+        if (state == GameState.PAUSED) state = GameState.PLAYING;
     }
 
     public void update(float horizontalInput, float deltaSeconds) {
-        if (state != GameState.PLAYING
-                || !Float.isFinite(deltaSeconds)
-                || deltaSeconds <= 0.0f) {
+        if (state != GameState.PLAYING || !Float.isFinite(deltaSeconds) || deltaSeconds <= 0.0f) {
             return;
         }
-
-        player.update(horizontalInput, deltaSeconds);
-        obstacle.update(deltaSeconds);
-        if (player.getBounds().overlaps(obstacle.getBounds())) {
-            state = GameState.GAME_OVER;
+        float safeDelta = Math.min(deltaSeconds, MAX_DELTA_SECONDS);
+        player.update(horizontalInput, safeDelta);
+        obstacleField.update(safeDelta, BASE_SPEED, BASE_SPAWN_INTERVAL, 1);
+        survivalSeconds += safeDelta;
+        for (WorldRect obstacle : obstacleField.snapshotBounds()) {
+            if (player.getBounds().overlaps(obstacle)) {
+                state = GameState.GAME_OVER;
+                break;
+            }
         }
     }
 
     public GameSnapshot snapshot() {
-        return new GameSnapshot(
-                state,
-                player.getBounds(),
-                obstacle.getBounds(),
-                player.getVelocityX());
+        return new GameSnapshot(state, player.getBounds(), obstacleField.snapshotBounds(),
+                player.getVelocityX(), survivalSeconds,
+                (int) Math.floor(survivalSeconds * 10.0f));
     }
 }
