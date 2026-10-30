@@ -22,7 +22,7 @@ public final class GameView extends View implements Choreographer.FrameCallback,
     private final Paint backgroundPaint = new Paint();
     private final Paint playerPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint obstaclePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private final Paint labelPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private GameSnapshotListener snapshotListener = snapshot -> { };
     private boolean running;
 
     public GameView(Context context, GameEngine engine, TiltInput tiltInput) {
@@ -32,11 +32,18 @@ public final class GameView extends View implements Choreographer.FrameCallback,
         backgroundPaint.setColor(Color.rgb(16, 19, 31));
         playerPaint.setColor(Color.rgb(32, 214, 181));
         obstaclePaint.setColor(Color.rgb(255, 94, 109));
-        labelPaint.setColor(Color.WHITE);
-        labelPaint.setTextAlign(Paint.Align.CENTER);
-        labelPaint.setTextSize(48.0f);
+        setContentDescription(context.getString(com.vanvinh2402.tiltescape.R.string.playfield_description));
         setClickable(true);
         setFocusable(true);
+    }
+
+    public void setSnapshotListener(GameSnapshotListener listener) {
+        snapshotListener = listener == null ? snapshot -> { } : listener;
+    }
+
+    public void refreshSnapshot() {
+        snapshotListener.onSnapshotChanged(engine.snapshot());
+        invalidate();
     }
 
     @Override public void start() {
@@ -57,6 +64,7 @@ public final class GameView extends View implements Choreographer.FrameCallback,
         if (!running) return;
         if (engine.getState() != GameState.PLAYING) { stop(); invalidate(); return; }
         engine.update(tiltInput.getHorizontalInput(), frameClock.nextDeltaSeconds(frameTimeNanos));
+        snapshotListener.onSnapshotChanged(engine.snapshot());
         invalidate();
         if (running && engine.getState() == GameState.PLAYING) {
             Choreographer.getInstance().postFrameCallback(this);
@@ -69,7 +77,7 @@ public final class GameView extends View implements Choreographer.FrameCallback,
         else if (engine.getState() == GameState.READY || engine.getState() == GameState.GAME_OVER) {
             engine.startOrRestart(); start();
         }
-        invalidate();
+        refreshSnapshot();
         return true;
     }
 
@@ -79,8 +87,6 @@ public final class GameView extends View implements Choreographer.FrameCallback,
         GameSnapshot snapshot = engine.snapshot();
         for (WorldRect obstacle : snapshot.getObstacleBounds()) drawWorldRect(canvas, obstacle, obstaclePaint);
         drawWorldRect(canvas, snapshot.getPlayerBounds(), playerPaint);
-        String label = labelFor(snapshot.getState());
-        if (label != null) canvas.drawText(label, getWidth()/2.0f, getHeight()/2.0f, labelPaint);
     }
 
     @Override protected void onDetachedFromWindow() { stop(); super.onDetachedFromWindow(); }
@@ -90,12 +96,4 @@ public final class GameView extends View implements Choreographer.FrameCallback,
                 rect.getRight()*getWidth(), rect.getBottom()*getHeight(), paint);
     }
 
-    private static String labelFor(GameState state) {
-        switch (state) {
-            case READY: return "TAP TO START";
-            case PAUSED: return "PAUSED - TAP TO RESUME";
-            case GAME_OVER: return "GAME OVER - TAP TO RESTART";
-            default: return null;
-        }
-    }
 }

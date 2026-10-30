@@ -5,4 +5,6 @@
     <string name="sensor_unavailable">Thiết bị không có cảm biến gia tốc. Không thể bắt đầu trò chơi.</string>
     <string name="score_zero">Điểm: 0</string>
     <string name="pause">Tạm dừng</string>
+    <string name="score_format">Điểm: %1$d</string>
+    <string name="playfield_description">Khu vực chơi Tilt Escape</string>
 </resources>

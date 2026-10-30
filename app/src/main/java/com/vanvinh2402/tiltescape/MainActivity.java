@@ -38,9 +38,16 @@ public final class MainActivity extends AppCompatActivity {
         gameContainer.addView(gameView, 0, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT));
+        gameView.setSnapshotListener(snapshot -> updateScore(snapshot.getScore()));
+        gameView.refreshSnapshot();
         statusText.setText(R.string.tilt_instructions);
         findViewById(R.id.state_overlay).bringToFront();
         sessionController = new GameSessionController(engine, gameView, tiltInput);
+    }
+
+    void updateScore(int score) {
+        TextView scoreText = findViewById(R.id.score_text);
+        scoreText.setText(getString(R.string.score_format, score));
     }
 
     @Override

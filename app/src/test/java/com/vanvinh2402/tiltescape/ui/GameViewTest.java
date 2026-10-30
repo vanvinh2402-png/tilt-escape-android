@@ -1,6 +1,7 @@
 package com.vanvinh2402.tiltescape.ui;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import com.vanvinh2402.tiltescape.game.GameEngine;
 import com.vanvinh2402.tiltescape.game.GameState;
@@ -77,6 +78,29 @@ public final class GameViewTest {
         engine.pause();
         view.doFrame(1_032_000_000L);
         assertEquals(1, tiltInput.readCount);
+    }
+
+    @Test
+    public void completedFrameAndExplicitRefreshNotifyListenerOnceEach() {
+        GameEngine engine = new GameEngine();
+        GameView view = new GameView(RuntimeEnvironment.getApplication(), engine, () -> 0.0f);
+        final int[] notifications = {0};
+        view.setSnapshotListener(snapshot -> notifications[0]++);
+        engine.startNewRun();
+        view.start();
+        view.doFrame(1_000_000_000L);
+        assertEquals(1, notifications[0]);
+        view.refreshSnapshot();
+        assertEquals(2, notifications[0]);
+    }
+
+    @Test
+    public void playfieldHasLocalizedContentDescription() {
+        GameView view = new GameView(RuntimeEnvironment.getApplication(), new GameEngine(), () -> 0.0f);
+        assertNotNull(view.getContentDescription());
+        assertEquals(RuntimeEnvironment.getApplication().getString(
+                com.vanvinh2402.tiltescape.R.string.playfield_description),
+                view.getContentDescription().toString());
     }
 
     private static final class CountingTiltInput implements TiltInput {

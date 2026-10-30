@@ -61,4 +61,15 @@ public final class MainActivityTest {
             controller.pause().stop().restart().start().resume().pause().stop().destroy();
         }
     }
+
+    @Test
+    public void scoreHudUsesLocalizedFormat() {
+        try (ActivityController<MainActivity> controller =
+                     Robolectric.buildActivity(MainActivity.class).setup()) {
+            MainActivity activity = controller.get();
+            activity.updateScore(120);
+            TextView score = activity.findViewById(R.id.score_text);
+            assertEquals(activity.getString(R.string.score_format, 120), score.getText().toString());
+        }
+    }
 }
