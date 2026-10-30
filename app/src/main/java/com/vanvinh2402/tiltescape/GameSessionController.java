@@ -2,6 +2,7 @@ package com.vanvinh2402.tiltescape;
 
 import com.vanvinh2402.tiltescape.game.GameEngine;
 import com.vanvinh2402.tiltescape.game.GameLoop;
+import com.vanvinh2402.tiltescape.game.GameState;
 import com.vanvinh2402.tiltescape.input.SensorRegistration;
 
 public final class GameSessionController {
@@ -26,7 +27,9 @@ public final class GameSessionController {
             return;
         }
         sensorRegistration.register();
-        gameLoop.start();
+        if (engine.getState() == GameState.PLAYING) {
+            gameLoop.start();
+        }
         active = true;
     }
 

@@ -1,7 +1,7 @@
 # Gameplay v2 Design
 
-**Date:** 2026-10-30  
-**Status:** Proposed  
+**Date:** 2026-10-30
+**Status:** Proposed
 **Scope:** Complete the playable offline gameplay loop before account and SQLite work.
 
 ## Intent

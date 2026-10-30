@@ -47,6 +47,66 @@ public final class GameplayUiControllerTest {
         }
     }
 
+    @Test
+    public void repeatedControlClicksKeepStateAndDoNotResetAnActiveRun() {
+        try (ActivityController<MainActivity> activityController =
+                     Robolectric.buildActivity(MainActivity.class).setup()) {
+            MainActivity activity = activityController.get();
+            GameEngine engine = new GameEngine();
+            GameView gameView = new GameView(activity, engine, () -> 0.0f);
+            GameplayUiController controller = new GameplayUiController(activity, engine, gameView);
+            controller.bind();
+            controller.bind();
+            gameView.setSnapshotListener(controller::refresh);
+            gameView.refreshSnapshot();
+
+            Button start = activity.findViewById(R.id.start_button);
+            start.performClick();
+            start.performClick();
+            assertEquals(GameState.PLAYING, engine.getState());
+
+            Button pause = activity.findViewById(R.id.pause_button);
+            pause.performClick();
+            pause.performClick();
+            assertEquals(GameState.PAUSED, engine.getState());
+
+            Button resume = activity.findViewById(R.id.resume_button);
+            resume.performClick();
+            resume.performClick();
+            assertEquals(GameState.PLAYING, engine.getState());
+
+            pause.performClick();
+            Button restart = activity.findViewById(R.id.restart_button);
+            restart.performClick();
+            restart.performClick();
+            engine.update(0.0f, 0.05f);
+            engine.update(0.0f, 0.05f);
+            int activeScore = engine.snapshot().getScore();
+            restart.performClick();
+            assertEquals(1, activeScore);
+            assertEquals(activeScore, engine.snapshot().getScore());
+
+            pause.performClick();
+            Button menu = activity.findViewById(R.id.pause_main_menu_button);
+            menu.performClick();
+            menu.performClick();
+            assertEquals(GameState.READY, engine.getState());
+
+            driveToGameOver(engine);
+            gameView.refreshSnapshot();
+            Button playAgain = activity.findViewById(R.id.play_again_button);
+            playAgain.performClick();
+            playAgain.performClick();
+            engine.update(0.0f, 0.05f);
+            engine.update(0.0f, 0.05f);
+            activeScore = engine.snapshot().getScore();
+            playAgain.performClick();
+            assertEquals(1, activeScore);
+            assertEquals(activeScore, engine.snapshot().getScore());
+            gameView.stop();
+        }
+    }
+
     private static void driveToGameOver(GameEngine engine) {
         if (engine.getState() != GameState.PLAYING) engine.startNewRun();
         for (int i = 0; i < 400 && engine.getState() == GameState.PLAYING; i++) {

@@ -81,6 +81,19 @@ public final class GameViewTest {
     }
 
     @Test
+    public void startOutsidePlayingDoesNotArmAFrameForLater() {
+        GameEngine engine = new GameEngine();
+        CountingTiltInput tiltInput = new CountingTiltInput();
+        GameView view = new GameView(RuntimeEnvironment.getApplication(), engine, tiltInput);
+
+        view.start();
+        engine.startNewRun();
+        view.doFrame(1_000_000_000L);
+
+        assertEquals(0, tiltInput.readCount);
+    }
+
+    @Test
     public void completedFrameAndExplicitRefreshNotifyListenerOnceEach() {
         GameEngine engine = new GameEngine();
         GameView view = new GameView(RuntimeEnvironment.getApplication(), engine, () -> 0.0f);

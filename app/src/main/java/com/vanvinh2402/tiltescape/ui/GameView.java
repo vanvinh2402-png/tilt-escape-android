@@ -47,7 +47,7 @@ public final class GameView extends View implements Choreographer.FrameCallback,
     }
 
     @Override public void start() {
-        if (running) return;
+        if (running || engine.getState() != GameState.PLAYING) return;
         running = true;
         frameClock.reset();
         Choreographer.getInstance().postFrameCallback(this);

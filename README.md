@@ -1,45 +1,48 @@
 # TILT ESCAPE
 
-TILT ESCAPE is a portrait Android game in which the player tilts the device to dodge falling obstacles.
+TILT ESCAPE là game Android màn hình dọc: người chơi nghiêng điện thoại sang trái hoặc phải để né các chướng ngại vật đang rơi.
 
-## Current status
+## Trạng thái hiện tại
 
-This repository contains a buildable Android Java prototype with tilt-controlled player motion, a falling obstacle, collision/Game Over, pause/resume, and tap-to-restart behavior. Authentication, persistence, settings, and leaderboard features will be added incrementally.
+Gameplay v2 đã có vòng chơi cục bộ hoàn chỉnh:
 
-## Requirements
+- Chướng ngại vật xuất hiện ở nhiều làn và không lặp lại ngay cùng một làn.
+- Điểm tăng theo thời gian sống sót, chỉ khi game đang ở trạng thái chơi.
+- Độ khó tăng theo mỗi 15 giây; tốc độ rơi, tần suất và số vật cản đều có giới hạn an toàn.
+- Có Bắt đầu, Tạm dừng, Tiếp tục, Chơi lại, Màn hình chính và Chơi lại sau Game Over.
+- Khi ứng dụng xuống nền trong lúc chơi, game tự tạm dừng và không tự chạy lại khi quay về.
+- Giao diện tránh vùng status/navigation bar trên Android API 24 đến API 35.
 
-- Android Studio with Android SDK 35
-- JDK 17 or 21 (Android Studio's bundled JDK is supported)
+## Yêu cầu và cách chạy
 
-## Open and run
+- Android Studio, Android SDK 35 và JDK 17 hoặc 21.
+- Thiết bị API 24 trở lên có cảm biến gia tốc, hoặc Android Emulator hỗ trợ Virtual sensors.
 
-1. Clone the repository.
-2. Open the repository root in Android Studio.
-3. Allow Gradle sync to complete.
-4. Run the `app` configuration on an Android device or emulator running API 24 or newer.
+Clone repository, mở thư mục gốc trong Android Studio, chờ Gradle Sync, chọn thiết bị rồi chạy cấu hình `app`. Nhấn **Bắt đầu** và nghiêng thiết bị trái/phải để di chuyển.
 
-## Command-line verification
+Các nút **Tạm dừng**, **Tiếp tục**, **Chơi lại** và **Màn hình chính** điều khiển vòng chơi. Chơi lại luôn đặt điểm về 0; Tiếp tục giữ nguyên điểm.
 
-On Windows:
+## Nghiêng điện thoại trên Android Emulator
+
+Trong máy ảo, chọn **Extended Controls (`...`) → Virtual sensors → Device Pose**. Kéo hoặc xoay mô hình điện thoại sang trái/phải. Tab **Additional sensors** chỉ dành cho cảm biến môi trường, không giả lập thao tác nghiêng của game.
+
+## Kiểm tra bằng dòng lệnh
 
 ```powershell
-.\gradlew.bat testDebugUnitTest
-.\gradlew.bat assembleDebug
+.\gradlew.bat --no-daemon testDebugUnitTest
+.\gradlew.bat --no-daemon assembleDebug
 ```
 
-The debug APK is generated at `app/build/outputs/apk/debug/app-debug.apk`.
+APK debug: `app/build/outputs/apk/debug/app-debug.apk`.
 
-## Prototype controls
+## Giới hạn hiện tại
 
-- Hold the device in portrait orientation.
-- Tap the game area to start, resume, or restart after Game Over.
-- Tilt the phone left or right to dodge the falling obstacle.
-- The prototype requires an accelerometer; unsupported devices show an explicit message instead of starting the game.
+Chưa có đăng nhập, tài khoản, SQLite, lưu điểm cao, bảng xếp hạng, âm thanh, đồ họa hoàn thiện hoặc dịch vụ trực tuyến. Điểm chỉ tồn tại trong vòng chơi hiện tại. Chiều và cảm giác nghiêng cuối cùng vẫn cần xác nhận trên thiết bị Android thật.
 
-## Project configuration
+## Cấu hình dự án
 
-- Language: Java
-- UI: XML Views
+- Ngôn ngữ: Java
+- UI: XML Views và Canvas
 - Minimum SDK: 24
 - Target/Compile SDK: 35
 - Application ID: `com.vanvinh2402.tiltescape`
