@@ -3,4 +3,6 @@
     <string name="app_name">TILT ESCAPE</string>
     <string name="tilt_instructions">Chạm để bắt đầu • Nghiêng điện thoại để di chuyển</string>
     <string name="sensor_unavailable">Thiết bị không có cảm biến gia tốc. Không thể bắt đầu trò chơi.</string>
+    <string name="score_zero">Điểm: 0</string>
+    <string name="pause">Tạm dừng</string>
 </resources>

@@ -11,6 +11,7 @@ import com.vanvinh2402.tiltescape.game.GameEngine;
 import com.vanvinh2402.tiltescape.input.AccelerometerTiltInput;
 import com.vanvinh2402.tiltescape.input.TiltSignalProcessor;
 import com.vanvinh2402.tiltescape.ui.GameView;
+import com.vanvinh2402.tiltescape.ui.SystemBarInsets;
 
 public final class MainActivity extends AppCompatActivity {
     private GameSessionController sessionController;
@@ -19,6 +20,7 @@ public final class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        SystemBarInsets.applyToPadding(findViewById(R.id.game_root));
 
         TextView statusText = findViewById(R.id.status_text);
         AccelerometerTiltInput tiltInput = new AccelerometerTiltInput(
@@ -33,11 +35,11 @@ public final class MainActivity extends AppCompatActivity {
         GameView gameView = new GameView(this, engine, tiltInput);
         gameView.setId(R.id.game_view);
         FrameLayout gameContainer = findViewById(R.id.game_container);
-        gameContainer.addView(gameView, new FrameLayout.LayoutParams(
+        gameContainer.addView(gameView, 0, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT));
         statusText.setText(R.string.tilt_instructions);
-        statusText.bringToFront();
+        findViewById(R.id.state_overlay).bringToFront();
         sessionController = new GameSessionController(engine, gameView, tiltInput);
     }
 
