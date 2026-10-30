@@ -103,6 +103,21 @@ public final class GameEngineTest {
         assertEquals(moved, engine.snapshot().getPlayerBounds().getLeft(), EPSILON);
     }
 
+    @Test
+    public void difficultyTierAdvancesDuringPlayButNotWhilePaused() {
+        GameEngine engine = engineInLane(0);
+        engine.startNewRun();
+        for (int i = 0; i < 300; i++) {
+            engine.update(0.0f, 0.05f);
+        }
+        assertEquals(1, engine.snapshot().getDifficultyTier());
+        engine.pause();
+        for (int i = 0; i < 300; i++) {
+            engine.update(0.0f, 0.05f);
+        }
+        assertEquals(1, engine.snapshot().getDifficultyTier());
+    }
+
     private static GameEngine engineInLane(int lane) {
         return new GameEngine(new ObstacleField(new SequenceRandomSource(lane)));
     }

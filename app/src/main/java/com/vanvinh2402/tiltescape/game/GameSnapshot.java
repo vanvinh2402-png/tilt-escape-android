@@ -9,15 +9,17 @@ public final class GameSnapshot {
     private final float playerVelocityX;
     private final float survivalSeconds;
     private final int score;
+    private final int difficultyTier;
 
     GameSnapshot(GameState state, WorldRect playerBounds, List<WorldRect> obstacleBounds,
-            float playerVelocityX, float survivalSeconds, int score) {
+            float playerVelocityX, float survivalSeconds, int score, int difficultyTier) {
         this.state = state;
         this.playerBounds = playerBounds;
         this.obstacleBounds = obstacleBounds;
         this.playerVelocityX = playerVelocityX;
         this.survivalSeconds = survivalSeconds;
         this.score = score;
+        this.difficultyTier = difficultyTier;
     }
 
     public GameState getState() { return state; }
@@ -26,4 +28,5 @@ public final class GameSnapshot {
     public float getPlayerVelocityX() { return playerVelocityX; }
     public float getSurvivalSeconds() { return survivalSeconds; }
     public int getScore() { return score; }
+    public int getDifficultyTier() { return difficultyTier; }
 }

@@ -2,11 +2,9 @@ package com.vanvinh2402.tiltescape.game;
 
 public final class GameEngine {
     private static final float MAX_DELTA_SECONDS = 0.05f;
-    private static final float BASE_SPEED = 0.30f;
-    private static final float BASE_SPAWN_INTERVAL = 1.40f;
-
     private final PlayerMotion player = new PlayerMotion();
     private final ObstacleField obstacleField;
+    private final DifficultyPolicy difficultyPolicy = new DifficultyPolicy();
     private GameState state = GameState.READY;
     private float survivalSeconds;
 
@@ -55,7 +53,9 @@ public final class GameEngine {
         }
         float safeDelta = Math.min(deltaSeconds, MAX_DELTA_SECONDS);
         player.update(horizontalInput, safeDelta);
-        obstacleField.update(safeDelta, BASE_SPEED, BASE_SPAWN_INTERVAL, 1);
+        DifficultySettings difficulty = difficultyPolicy.forSurvivalSeconds(survivalSeconds);
+        obstacleField.update(safeDelta, difficulty.getFallSpeed(),
+                difficulty.getSpawnInterval(), difficulty.getMaximumActive());
         survivalSeconds += safeDelta;
         for (WorldRect obstacle : obstacleField.snapshotBounds()) {
             if (player.getBounds().overlaps(obstacle)) {
@@ -68,6 +68,7 @@ public final class GameEngine {
     public GameSnapshot snapshot() {
         return new GameSnapshot(state, player.getBounds(), obstacleField.snapshotBounds(),
                 player.getVelocityX(), survivalSeconds,
-                (int) Math.floor(survivalSeconds * 10.0f));
+                (int) Math.floor(survivalSeconds * 10.0f),
+                difficultyPolicy.forSurvivalSeconds(survivalSeconds).getTier());
     }
 }
