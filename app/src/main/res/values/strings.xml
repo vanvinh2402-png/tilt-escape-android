@@ -7,4 +7,13 @@
     <string name="pause">Tạm dừng</string>
     <string name="score_format">Điểm: %1$d</string>
     <string name="playfield_description">Khu vực chơi Tilt Escape</string>
+    <string name="game_title">TILT ESCAPE</string>
+    <string name="start_game">Bắt đầu</string>
+    <string name="paused">Đã tạm dừng</string>
+    <string name="resume">Tiếp tục</string>
+    <string name="restart">Chơi lại</string>
+    <string name="main_menu">Màn hình chính</string>
+    <string name="game_over">Kết thúc</string>
+    <string name="final_score_format">Điểm cuối: %1$d</string>
+    <string name="play_again">Chơi lại</string>
 </resources>

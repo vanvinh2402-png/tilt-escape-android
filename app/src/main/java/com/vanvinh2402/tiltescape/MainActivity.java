@@ -11,10 +11,13 @@ import com.vanvinh2402.tiltescape.game.GameEngine;
 import com.vanvinh2402.tiltescape.input.AccelerometerTiltInput;
 import com.vanvinh2402.tiltescape.input.TiltSignalProcessor;
 import com.vanvinh2402.tiltescape.ui.GameView;
+import com.vanvinh2402.tiltescape.ui.GameplayUiController;
 import com.vanvinh2402.tiltescape.ui.SystemBarInsets;
 
 public final class MainActivity extends AppCompatActivity {
     private GameSessionController sessionController;
+    private GameplayUiController gameplayUiController;
+    private GameView gameView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,15 +35,16 @@ public final class MainActivity extends AppCompatActivity {
         }
 
         GameEngine engine = new GameEngine();
-        GameView gameView = new GameView(this, engine, tiltInput);
+        gameView = new GameView(this, engine, tiltInput);
         gameView.setId(R.id.game_view);
         FrameLayout gameContainer = findViewById(R.id.game_container);
         gameContainer.addView(gameView, 0, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT));
-        gameView.setSnapshotListener(snapshot -> updateScore(snapshot.getScore()));
+        gameplayUiController = new GameplayUiController(this, engine, gameView);
+        gameplayUiController.bind();
+        gameView.setSnapshotListener(gameplayUiController::refresh);
         gameView.refreshSnapshot();
-        statusText.setText(R.string.tilt_instructions);
         findViewById(R.id.state_overlay).bringToFront();
         sessionController = new GameSessionController(engine, gameView, tiltInput);
     }
@@ -62,6 +66,7 @@ public final class MainActivity extends AppCompatActivity {
     protected void onPause() {
         if (sessionController != null) {
             sessionController.onPause();
+            gameView.refreshSnapshot();
         }
         super.onPause();
     }

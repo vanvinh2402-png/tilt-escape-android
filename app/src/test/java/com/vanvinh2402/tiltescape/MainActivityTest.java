@@ -13,6 +13,7 @@ import android.hardware.SensorManager;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Button;
 
 import com.vanvinh2402.tiltescape.ui.GameView;
 
@@ -71,5 +72,50 @@ public final class MainActivityTest {
             TextView score = activity.findViewById(R.id.score_text);
             assertEquals(activity.getString(R.string.score_format, 120), score.getText().toString());
         }
+    }
+
+    @Test
+    public void controlsMoveBetweenReadyPlayingPausedAndMenu() {
+        addAccelerometer();
+        try (ActivityController<MainActivity> controller =
+                     Robolectric.buildActivity(MainActivity.class).create().start().resume()) {
+            MainActivity activity = controller.get();
+            assertEquals(View.VISIBLE, activity.findViewById(R.id.ready_panel).getVisibility());
+            activity.<Button>findViewById(R.id.start_button).performClick();
+            assertEquals(View.VISIBLE, activity.findViewById(R.id.pause_button).getVisibility());
+            assertEquals(View.GONE, activity.findViewById(R.id.ready_panel).getVisibility());
+
+            activity.<Button>findViewById(R.id.pause_button).performClick();
+            assertEquals(View.VISIBLE, activity.findViewById(R.id.pause_panel).getVisibility());
+            activity.<Button>findViewById(R.id.resume_button).performClick();
+            assertEquals(View.GONE, activity.findViewById(R.id.pause_panel).getVisibility());
+
+            activity.<Button>findViewById(R.id.pause_button).performClick();
+            activity.<Button>findViewById(R.id.restart_button).performClick();
+            assertEquals(activity.getString(R.string.score_format, 0),
+                    activity.<TextView>findViewById(R.id.score_text).getText().toString());
+
+            activity.<Button>findViewById(R.id.pause_button).performClick();
+            activity.<Button>findViewById(R.id.pause_main_menu_button).performClick();
+            assertEquals(View.VISIBLE, activity.findViewById(R.id.ready_panel).getVisibility());
+        }
+    }
+
+    @Test
+    public void backgroundingPlayingGameShowsPauseAndForegroundDoesNotAutoResume() {
+        addAccelerometer();
+        try (ActivityController<MainActivity> controller =
+                     Robolectric.buildActivity(MainActivity.class).create().start().resume()) {
+            MainActivity activity = controller.get();
+            activity.<Button>findViewById(R.id.start_button).performClick();
+            controller.pause().stop().restart().start().resume();
+            assertEquals(View.VISIBLE, activity.findViewById(R.id.pause_panel).getVisibility());
+        }
+    }
+
+    private static void addAccelerometer() {
+        SensorManager sensorManager = (SensorManager) RuntimeEnvironment.getApplication()
+                .getSystemService(Context.SENSOR_SERVICE);
+        shadowOf(sensorManager).addSensor(ShadowSensor.newInstance(Sensor.TYPE_ACCELEROMETER));
     }
 }
