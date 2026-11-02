@@ -7,8 +7,8 @@ TILT ESCAPE là game Android màn hình dọc: người chơi nghiêng điện t
 Gameplay v2 đã có vòng chơi cục bộ hoàn chỉnh:
 
 - Chướng ngại vật xuất hiện ở nhiều làn và không lặp lại ngay cùng một làn.
-- Điểm tăng theo thời gian sống sót, chỉ khi game đang ở trạng thái chơi.
-- Độ khó tăng theo mỗi 15 giây; tốc độ rơi, tần suất và số vật cản đều có giới hạn an toàn.
+- Mỗi chướng ngại vật được né an toàn và đi hết khỏi màn hình sẽ cộng 1 điểm.
+- Độ khó vẫn tăng theo mỗi 15 giây; tốc độ rơi, tần suất và số vật cản đều có giới hạn an toàn.
 - Có Bắt đầu, Tạm dừng, Tiếp tục, Chơi lại, Màn hình chính và Chơi lại sau Game Over.
 - Khi ứng dụng xuống nền trong lúc chơi, game tự tạm dừng và không tự chạy lại khi quay về.
 - Giao diện tránh vùng status/navigation bar trên Android API 24 đến API 35.
