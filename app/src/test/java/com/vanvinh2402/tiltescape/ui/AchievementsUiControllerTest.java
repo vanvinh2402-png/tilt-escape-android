@@ -149,7 +149,7 @@ public final class AchievementsUiControllerTest {
         final FakeLoader loader = new FakeLoader();
         final GameplayUiController gameplay = new GameplayUiController(activity, engine, gameView);
         final AchievementsUiController achievements =
-                new AchievementsUiController(activity, engine, gameView, loader);
+                new AchievementsUiController(activity, engine, loader);
 
         Harness() {
             gameplay.bind();

@@ -57,6 +57,13 @@ public final class MainActivityTest {
             assertSame(root, hud.getParent());
             assertSame(root, gameContainer.getParent());
             assertTrue(root.indexOfChild(hud) < root.indexOfChild(gameContainer));
+
+            activity.<Button>findViewById(R.id.achievements_button).performClick();
+            assertEquals(View.VISIBLE,
+                    activity.findViewById(R.id.achievements_panel).getVisibility());
+            activity.<Button>findViewById(R.id.achievements_back_button).performClick();
+            assertEquals(View.VISIBLE,
+                    activity.findViewById(R.id.ready_panel).getVisibility());
         }
     }
 

@@ -22,7 +22,6 @@ import java.util.Objects;
 public final class AchievementsUiController {
     private final Activity activity;
     private final GameEngine engine;
-    private final GameView gameView;
     private final AchievementsLoader loader;
     private final View panel;
     private final View readyPanel;
@@ -34,11 +33,10 @@ public final class AchievementsUiController {
     private boolean bound;
     private int requestGeneration;
 
-    public AchievementsUiController(Activity activity, GameEngine engine, GameView gameView,
+    public AchievementsUiController(Activity activity, GameEngine engine,
             AchievementsLoader loader) {
         this.activity = Objects.requireNonNull(activity, "activity");
         this.engine = Objects.requireNonNull(engine, "engine");
-        this.gameView = Objects.requireNonNull(gameView, "gameView");
         this.loader = Objects.requireNonNull(loader, "loader");
         panel = activity.findViewById(R.id.achievements_panel);
         readyPanel = activity.findViewById(R.id.ready_panel);
@@ -87,7 +85,7 @@ public final class AchievementsUiController {
         if (!isVisible()) return;
         requestGeneration++;
         panel.setVisibility(View.GONE);
-        gameView.refreshSnapshot();
+        readyPanel.setVisibility(View.VISIBLE);
     }
 
     public boolean isVisible() {

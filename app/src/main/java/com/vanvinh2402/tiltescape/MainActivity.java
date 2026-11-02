@@ -32,6 +32,13 @@ public final class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         SystemBarInsets.applyToPadding(findViewById(R.id.game_root));
 
+        GameEngine engine = new GameEngine();
+        gameResultsCoordinator = GameResultsCoordinator.create(
+                new SQLiteGameResultRepository(this));
+        achievementsUiController = new AchievementsUiController(
+                this, engine, gameResultsCoordinator);
+        achievementsUiController.bind();
+
         TextView statusText = findViewById(R.id.status_text);
         AccelerometerTiltInput tiltInput = new AccelerometerTiltInput(
                 this, new TiltSignalProcessor());
@@ -41,20 +48,14 @@ public final class MainActivity extends AppCompatActivity {
             return;
         }
 
-        GameEngine engine = new GameEngine();
         gameView = new GameView(this, engine, tiltInput);
         gameView.setId(R.id.game_view);
         FrameLayout gameContainer = findViewById(R.id.game_container);
         gameContainer.addView(gameView, 0, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT));
-        gameResultsCoordinator = GameResultsCoordinator.create(
-                new SQLiteGameResultRepository(this));
         GameResultRecorder resultRecorder = new GameResultRecorder(
                 gameResultsCoordinator::save, System::currentTimeMillis);
-        achievementsUiController = new AchievementsUiController(
-                this, engine, gameView, gameResultsCoordinator);
-        achievementsUiController.bind();
         gameplayUiController = new GameplayUiController(
                 this, engine, gameView, resultRecorder,
                 achievementsUiController::isVisible);
