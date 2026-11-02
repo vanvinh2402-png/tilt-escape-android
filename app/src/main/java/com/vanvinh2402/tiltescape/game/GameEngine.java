@@ -7,6 +7,7 @@ public final class GameEngine {
     private final DifficultyPolicy difficultyPolicy = new DifficultyPolicy();
     private GameState state = GameState.READY;
     private float survivalSeconds;
+    private int score;
 
     public GameEngine() {
         this(new ObstacleField(new JavaRandomSource()));
@@ -29,6 +30,7 @@ public final class GameEngine {
         player.reset();
         obstacleField.reset();
         survivalSeconds = 0.0f;
+        score = 0;
         state = GameState.PLAYING;
     }
 
@@ -36,6 +38,7 @@ public final class GameEngine {
         player.reset();
         obstacleField.reset();
         survivalSeconds = 0.0f;
+        score = 0;
         state = GameState.READY;
     }
 
@@ -54,7 +57,7 @@ public final class GameEngine {
         float safeDelta = Math.min(deltaSeconds, MAX_DELTA_SECONDS);
         player.update(horizontalInput, safeDelta);
         DifficultySettings difficulty = difficultyPolicy.forSurvivalSeconds(survivalSeconds);
-        obstacleField.update(safeDelta, difficulty.getFallSpeed(),
+        score += obstacleField.update(safeDelta, difficulty.getFallSpeed(),
                 difficulty.getSpawnInterval(), difficulty.getMaximumActive());
         survivalSeconds += safeDelta;
         for (WorldRect obstacle : obstacleField.snapshotBounds()) {
@@ -68,7 +71,7 @@ public final class GameEngine {
     public GameSnapshot snapshot() {
         return new GameSnapshot(state, player.getBounds(), obstacleField.snapshotBounds(),
                 player.getVelocityX(), survivalSeconds,
-                (int) Math.floor(survivalSeconds * 10.0f),
+                score,
                 difficultyPolicy.forSurvivalSeconds(survivalSeconds).getTier());
     }
 }

@@ -9,17 +9,22 @@ public final class GameEngineTest {
     private static final float EPSILON = 0.0001f;
 
     @Test
-    public void newRunStartsAtZeroAndAccumulatesSurvivalScore() {
+    public void scoreIncrementsOnlyAfterACompleteObstaclePass() {
         GameEngine engine = engineInLane(0);
         engine.startNewRun();
         assertEquals(0, engine.snapshot().getScore());
 
-        for (int i = 0; i < 200; i++) {
+        for (int i = 0; i < 71; i++) {
             engine.update(0.0f, 0.05f);
         }
+        assertEquals(0, engine.snapshot().getScore());
+        assertEquals(3.55f, engine.snapshot().getSurvivalSeconds(), EPSILON);
 
-        assertEquals(10.0f, engine.snapshot().getSurvivalSeconds(), EPSILON);
-        assertEquals(100, engine.snapshot().getScore());
+        for (int i = 0; i < 2 && engine.snapshot().getScore() == 0; i++) {
+            engine.update(0.0f, 0.05f);
+        }
+        assertEquals(1, engine.snapshot().getScore());
+        assertTrue(engine.snapshot().getSurvivalSeconds() > 3.55f);
     }
 
     @Test
@@ -34,23 +39,27 @@ public final class GameEngineTest {
 
         engine.update(0.0f, 1.0f);
         assertEquals(0.05f, engine.snapshot().getSurvivalSeconds(), EPSILON);
+        assertEquals(0, engine.snapshot().getScore());
     }
 
     @Test
     public void pauseReadyAndGameOverFreezeTimeAndScore() {
         GameEngine paused = engineInLane(0);
         paused.startNewRun();
-        paused.update(0.0f, 0.05f);
+        advanceUntilScore(paused, 1);
+        float pausedTime = paused.snapshot().getSurvivalSeconds();
         paused.pause();
         paused.update(0.0f, 1.0f);
-        assertEquals(0.05f, paused.snapshot().getSurvivalSeconds(), EPSILON);
+        assertEquals(pausedTime, paused.snapshot().getSurvivalSeconds(), EPSILON);
+        assertEquals(1, paused.snapshot().getScore());
 
         paused.returnToReady();
         paused.update(0.0f, 1.0f);
         assertEquals(GameState.READY, paused.getState());
         assertEquals(0, paused.snapshot().getScore());
 
-        GameEngine over = engineInLane(2);
+        GameEngine over = new GameEngine(
+                new ObstacleField(new SequenceRandomSource(1, 2)));
         over.startNewRun();
         while (over.getState() == GameState.PLAYING) {
             over.update(0.0f, 0.05f);
@@ -59,6 +68,7 @@ public final class GameEngineTest {
         float finalTime = over.snapshot().getSurvivalSeconds();
         over.update(1.0f, 1.0f);
         assertEquals(GameState.GAME_OVER, over.getState());
+        assertEquals(0, finalScore);
         assertEquals(finalScore, over.snapshot().getScore());
         assertEquals(finalTime, over.snapshot().getSurvivalSeconds(), EPSILON);
     }
@@ -67,7 +77,7 @@ public final class GameEngineTest {
     public void startNewRunResetsPausedOrGameOverRunAndField() {
         GameEngine engine = engineInLane(0);
         engine.startNewRun();
-        engine.update(1.0f, 0.05f);
+        advanceUntilScore(engine, 1);
         engine.pause();
 
         engine.startNewRun();
@@ -120,6 +130,13 @@ public final class GameEngineTest {
 
     private static GameEngine engineInLane(int lane) {
         return new GameEngine(new ObstacleField(new SequenceRandomSource(lane)));
+    }
+
+    private static void advanceUntilScore(GameEngine engine, int expectedScore) {
+        for (int i = 0; i < 100 && engine.snapshot().getScore() < expectedScore; i++) {
+            engine.update(0.0f, 0.05f);
+        }
+        assertEquals(expectedScore, engine.snapshot().getScore());
     }
 
     private static float centerX(WorldRect rect) {

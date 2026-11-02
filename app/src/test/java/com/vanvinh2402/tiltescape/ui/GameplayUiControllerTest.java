@@ -81,10 +81,10 @@ public final class GameplayUiControllerTest {
             restart.performClick();
             engine.update(0.0f, 0.05f);
             engine.update(0.0f, 0.05f);
-            int activeScore = engine.snapshot().getScore();
+            float activeTime = engine.snapshot().getSurvivalSeconds();
             restart.performClick();
-            assertEquals(1, activeScore);
-            assertEquals(activeScore, engine.snapshot().getScore());
+            assertEquals(0.10f, activeTime, 0.0001f);
+            assertEquals(activeTime, engine.snapshot().getSurvivalSeconds(), 0.0001f);
 
             pause.performClick();
             Button menu = activity.findViewById(R.id.pause_main_menu_button);
@@ -99,10 +99,10 @@ public final class GameplayUiControllerTest {
             playAgain.performClick();
             engine.update(0.0f, 0.05f);
             engine.update(0.0f, 0.05f);
-            activeScore = engine.snapshot().getScore();
+            activeTime = engine.snapshot().getSurvivalSeconds();
             playAgain.performClick();
-            assertEquals(1, activeScore);
-            assertEquals(activeScore, engine.snapshot().getScore());
+            assertEquals(0.10f, activeTime, 0.0001f);
+            assertEquals(activeTime, engine.snapshot().getSurvivalSeconds(), 0.0001f);
             gameView.stop();
         }
     }
