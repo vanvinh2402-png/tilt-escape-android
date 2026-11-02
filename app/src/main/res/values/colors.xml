@@ -5,4 +5,5 @@
     <color name="accent">#20D6B5</color>
     <color name="background">#10131F</color>
     <color name="on_background">#FFFFFF</color>
+    <color name="score_accent">#FF5E6D</color>
 </resources>

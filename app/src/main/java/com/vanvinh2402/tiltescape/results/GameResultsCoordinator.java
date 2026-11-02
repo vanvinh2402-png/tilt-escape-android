@@ -10,7 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-public final class GameResultsCoordinator implements AutoCloseable {
+public final class GameResultsCoordinator implements AchievementsLoader, AutoCloseable {
     private static final String TAG = "GameResults";
     private static final int RECENT_LIMIT = 10;
 
@@ -52,6 +52,7 @@ public final class GameResultsCoordinator implements AutoCloseable {
         });
     }
 
+    @Override
     public void loadAchievements(Callback callback) {
         Objects.requireNonNull(callback, "callback");
         submit(() -> {

@@ -16,4 +16,14 @@
     <string name="game_over">Kết thúc</string>
     <string name="final_score_format">Điểm cuối: %1$d</string>
     <string name="play_again">Chơi lại</string>
+    <string name="achievements">Thành tích</string>
+    <string name="achievements_title">THÀNH TÍCH</string>
+    <string name="achievements_high_score_format">Điểm cao nhất: %1$d</string>
+    <string name="achievements_recent_title">10 lượt gần nhất</string>
+    <string name="achievements_loading">Đang tải thành tích…</string>
+    <string name="achievements_empty">Chưa có lượt chơi nào</string>
+    <string name="achievements_error">Không thể tải thành tích</string>
+    <string name="achievements_back">Quay lại</string>
+    <string name="achievements_position_format">%1$d</string>
+    <string name="achievements_score_format">%1$d điểm</string>
 </resources>

@@ -29,6 +29,19 @@ import org.robolectric.shadows.ShadowSensorManager;
 @RunWith(RobolectricTestRunner.class)
 public final class MainActivityTest {
     @Test
+    public void achievementsViewsExistInTheMainLayout() {
+        try (ActivityController<MainActivity> controller =
+                     Robolectric.buildActivity(MainActivity.class).setup()) {
+            MainActivity activity = controller.get();
+            assertNotNull(activity.findViewById(R.id.achievements_button));
+            assertNotNull(activity.findViewById(R.id.achievements_panel));
+            assertNotNull(activity.findViewById(R.id.achievements_high_score));
+            assertNotNull(activity.findViewById(R.id.achievements_results_container));
+            assertNotNull(activity.findViewById(R.id.achievements_back_button));
+        }
+    }
+
+    @Test
     public void missingAccelerometerShowsUnavailableMessageAndSafeShell() {
         try (ActivityController<MainActivity> controller =
                      Robolectric.buildActivity(MainActivity.class).setup()) {

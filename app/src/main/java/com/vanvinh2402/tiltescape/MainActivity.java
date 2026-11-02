@@ -5,11 +5,16 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.vanvinh2402.tiltescape.game.GameEngine;
+import com.vanvinh2402.tiltescape.game.GameResultRecorder;
 import com.vanvinh2402.tiltescape.input.AccelerometerTiltInput;
 import com.vanvinh2402.tiltescape.input.TiltSignalProcessor;
+import com.vanvinh2402.tiltescape.results.GameResultsCoordinator;
+import com.vanvinh2402.tiltescape.results.SQLiteGameResultRepository;
+import com.vanvinh2402.tiltescape.ui.AchievementsUiController;
 import com.vanvinh2402.tiltescape.ui.GameView;
 import com.vanvinh2402.tiltescape.ui.GameplayUiController;
 import com.vanvinh2402.tiltescape.ui.SystemBarInsets;
@@ -17,6 +22,8 @@ import com.vanvinh2402.tiltescape.ui.SystemBarInsets;
 public final class MainActivity extends AppCompatActivity {
     private GameSessionController sessionController;
     private GameplayUiController gameplayUiController;
+    private AchievementsUiController achievementsUiController;
+    private GameResultsCoordinator gameResultsCoordinator;
     private GameView gameView;
 
     @Override
@@ -41,12 +48,34 @@ public final class MainActivity extends AppCompatActivity {
         gameContainer.addView(gameView, 0, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT));
-        gameplayUiController = new GameplayUiController(this, engine, gameView);
+        gameResultsCoordinator = GameResultsCoordinator.create(
+                new SQLiteGameResultRepository(this));
+        GameResultRecorder resultRecorder = new GameResultRecorder(
+                gameResultsCoordinator::save, System::currentTimeMillis);
+        achievementsUiController = new AchievementsUiController(
+                this, engine, gameView, gameResultsCoordinator);
+        achievementsUiController.bind();
+        gameplayUiController = new GameplayUiController(
+                this, engine, gameView, resultRecorder,
+                achievementsUiController::isVisible);
         gameplayUiController.bind();
         gameView.setSnapshotListener(gameplayUiController::refresh);
         gameView.refreshSnapshot();
         findViewById(R.id.state_overlay).bringToFront();
         sessionController = new GameSessionController(engine, gameView, tiltInput);
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (achievementsUiController != null
+                        && achievementsUiController.handleBack()) return;
+                setEnabled(false);
+                try {
+                    getOnBackPressedDispatcher().onBackPressed();
+                } finally {
+                    setEnabled(true);
+                }
+            }
+        });
     }
 
     void updateScore(int score) {
@@ -69,5 +98,14 @@ public final class MainActivity extends AppCompatActivity {
             gameView.refreshSnapshot();
         }
         super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (gameResultsCoordinator != null) {
+            gameResultsCoordinator.close();
+            gameResultsCoordinator = null;
+        }
+        super.onDestroy();
     }
 }

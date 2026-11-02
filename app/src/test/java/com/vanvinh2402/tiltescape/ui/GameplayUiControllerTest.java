@@ -8,8 +8,10 @@ import android.widget.Button;
 import com.vanvinh2402.tiltescape.MainActivity;
 import com.vanvinh2402.tiltescape.R;
 import com.vanvinh2402.tiltescape.game.GameEngine;
+import com.vanvinh2402.tiltescape.game.GameResultRecorder;
 import com.vanvinh2402.tiltescape.game.GameState;
 import com.vanvinh2402.tiltescape.game.WorldRect;
+import com.vanvinh2402.tiltescape.results.GameResult;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,8 +19,34 @@ import org.robolectric.Robolectric;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.android.controller.ActivityController;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @RunWith(RobolectricTestRunner.class)
 public final class GameplayUiControllerTest {
+    @Test
+    public void repeatedGameOverRefreshPersistsOnlyOnce() {
+        try (ActivityController<MainActivity> activityController =
+                     Robolectric.buildActivity(MainActivity.class).setup()) {
+            MainActivity activity = activityController.get();
+            GameEngine engine = new GameEngine();
+            GameView gameView = new GameView(activity, engine, () -> 0.0f);
+            List<GameResult> saved = new ArrayList<>();
+            GameResultRecorder recorder = new GameResultRecorder(saved::add, () -> 1_000L);
+            GameplayUiController controller = new GameplayUiController(
+                    activity, engine, gameView, recorder, () -> false);
+
+            engine.startNewRun();
+            controller.refresh(engine.snapshot());
+            driveToGameOver(engine);
+            controller.refresh(engine.snapshot());
+            controller.refresh(engine.snapshot());
+            controller.refresh(engine.snapshot());
+
+            assertEquals(1, saved.size());
+        }
+    }
+
     @Test
     public void gameOverOffersPlayAgainAndMainMenu() {
         try (ActivityController<MainActivity> activityController =
