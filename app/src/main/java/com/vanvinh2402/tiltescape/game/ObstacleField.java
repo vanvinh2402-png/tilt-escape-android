@@ -25,16 +25,18 @@ final class ObstacleField {
         spawn();
     }
 
-    void update(float deltaSeconds, float speed, float spawnInterval, int maximumActive) {
+    int update(float deltaSeconds, float speed, float spawnInterval, int maximumActive) {
         if (!Float.isFinite(deltaSeconds) || deltaSeconds <= 0.0f) {
-            return;
+            return 0;
         }
+        int passedCount = 0;
         Iterator<Obstacle> iterator = obstacles.iterator();
         while (iterator.hasNext()) {
             Obstacle obstacle = iterator.next();
             obstacle.update(deltaSeconds, speed);
             if (obstacle.isBelowWorld()) {
                 iterator.remove();
+                passedCount++;
             }
         }
         timeSinceSpawn += deltaSeconds;
@@ -44,6 +46,7 @@ final class ObstacleField {
             spawn();
             timeSinceSpawn = 0.0f;
         }
+        return passedCount;
     }
 
     List<WorldRect> snapshotBounds() {

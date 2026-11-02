@@ -60,6 +60,32 @@ public final class ObstacleFieldTest {
         assertEquals(0, removed.snapshotBounds().size());
     }
 
+    @Test
+    public void updateReturnsEveryObstaclePassedInThatCall() {
+        ObstacleField field = new ObstacleField(new SequenceRandomSource(0, 1));
+        field.reset();
+
+        assertEquals(0, field.update(0.30f, 1.0f, 0.10f, 2));
+        assertEquals(2, field.snapshotBounds().size());
+        assertEquals(2, field.update(2.0f, 1.0f, 100.0f, 2));
+        assertEquals(0, field.snapshotBounds().size());
+        assertEquals(0, field.update(0.10f, 1.0f, 100.0f, 2));
+    }
+
+    @Test
+    public void invalidDeltaReturnsZeroWithoutChangingField() {
+        ObstacleField field = new ObstacleField(new SequenceRandomSource(0));
+        field.reset();
+        float initialTop = field.snapshotBounds().get(0).getTop();
+
+        assertEquals(0, field.update(Float.NaN, 1.0f, 0.0f, 2));
+        assertEquals(0, field.update(Float.POSITIVE_INFINITY, 1.0f, 0.0f, 2));
+        assertEquals(0, field.update(0.0f, 1.0f, 0.0f, 2));
+        assertEquals(0, field.update(-1.0f, 1.0f, 0.0f, 2));
+        assertEquals(1, field.snapshotBounds().size());
+        assertEquals(initialTop, field.snapshotBounds().get(0).getTop(), EPSILON);
+    }
+
     @Test(expected = UnsupportedOperationException.class)
     public void snapshotBoundsCannotBeModified() {
         ObstacleField field = new ObstacleField(new SequenceRandomSource(0));
