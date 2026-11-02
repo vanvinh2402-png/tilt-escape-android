@@ -38,6 +38,18 @@ public final class MainActivity extends AppCompatActivity {
         achievementsUiController = new AchievementsUiController(
                 this, engine, gameResultsCoordinator);
         achievementsUiController.bind();
+        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                if (achievementsUiController.handleBack()) return;
+                setEnabled(false);
+                try {
+                    getOnBackPressedDispatcher().onBackPressed();
+                } finally {
+                    setEnabled(true);
+                }
+            }
+        });
 
         TextView statusText = findViewById(R.id.status_text);
         AccelerometerTiltInput tiltInput = new AccelerometerTiltInput(
@@ -64,19 +76,6 @@ public final class MainActivity extends AppCompatActivity {
         gameView.refreshSnapshot();
         findViewById(R.id.state_overlay).bringToFront();
         sessionController = new GameSessionController(engine, gameView, tiltInput);
-        getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                if (achievementsUiController != null
-                        && achievementsUiController.handleBack()) return;
-                setEnabled(false);
-                try {
-                    getOnBackPressedDispatcher().onBackPressed();
-                } finally {
-                    setEnabled(true);
-                }
-            }
-        });
     }
 
     void updateScore(int score) {

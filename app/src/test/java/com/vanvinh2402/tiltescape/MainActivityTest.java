@@ -64,6 +64,13 @@ public final class MainActivityTest {
             activity.<Button>findViewById(R.id.achievements_back_button).performClick();
             assertEquals(View.VISIBLE,
                     activity.findViewById(R.id.ready_panel).getVisibility());
+
+            activity.<Button>findViewById(R.id.achievements_button).performClick();
+            activity.getOnBackPressedDispatcher().onBackPressed();
+            assertEquals(View.GONE,
+                    activity.findViewById(R.id.achievements_panel).getVisibility());
+            assertEquals(View.VISIBLE,
+                    activity.findViewById(R.id.ready_panel).getVisibility());
         }
     }
 
