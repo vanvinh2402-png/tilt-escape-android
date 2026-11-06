@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Widget.TiltEscape.Input" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@drawable/bg_neon_input</item>
+        <item name="android:textColor">@color/on_background</item>
+        <item name="android:textColorHint">@color/text_secondary</item>
+        <item name="android:minHeight">@dimen/control_height</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingStart">16dp</item>
+        <item name="android:paddingEnd">16dp</item>
+        <item name="android:paddingTop">0dp</item>
+        <item name="android:paddingBottom">0dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Widget.TiltEscape.Button.Base" parent="Widget.AppCompat.Button">
+        <item name="android:minHeight">@dimen/control_height</item>
+        <item name="android:minWidth">@dimen/touch_target_min</item>
+        <item name="android:paddingStart">18dp</item>
+        <item name="android:paddingEnd">18dp</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textSize">15sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:includeFontPadding">false</item>
+    </style>
+
+    <style name="Widget.TiltEscape.Button.Primary" parent="Widget.TiltEscape.Button.Base">
+        <item name="android:background">@drawable/bg_button_primary</item>
+        <item name="android:textColor">@color/on_background</item>
+    </style>
+
+    <style name="Widget.TiltEscape.Button.Secondary" parent="Widget.TiltEscape.Button.Base">
+        <item name="android:background">@drawable/bg_button_secondary</item>
+        <item name="android:textColor">@color/on_background</item>
+    </style>
+
+    <style name="Widget.TiltEscape.Button.Ghost" parent="Widget.TiltEscape.Button.Base">
+        <item name="android:background">@drawable/bg_button_ghost</item>
+        <item name="android:textColor">@color/text_secondary</item>
+    </style>
+
+    <style name="TextAppearance.TiltEscape.Brand" parent="TextAppearance.AppCompat.Caption">
+        <item name="android:textColor">@color/accent</item>
+        <item name="android:textSize">12sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.18</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <style name="TextAppearance.TiltEscape.Title" parent="TextAppearance.AppCompat.Headline">
+        <item name="android:textColor">@color/on_background</item>
+        <item name="android:textSize">28sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="TextAppearance.TiltEscape.Body" parent="TextAppearance.AppCompat.Body1">
+        <item name="android:textColor">@color/on_background</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+
+    <style name="TextAppearance.TiltEscape.Secondary" parent="TextAppearance.AppCompat.Body2">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TextAppearance.TiltEscape.Error" parent="TextAppearance.AppCompat.Body2">
+        <item name="android:textColor">@color/score_accent</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+</resources>
