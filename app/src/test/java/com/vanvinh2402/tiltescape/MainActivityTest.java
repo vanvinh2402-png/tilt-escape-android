@@ -13,6 +13,8 @@ import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Button;
 
@@ -135,6 +137,73 @@ public final class MainActivityTest {
             assertEquals(View.VISIBLE, activity.findViewById(R.id.login_panel).getVisibility());
             assertEquals(View.GONE, activity.findViewById(R.id.ready_panel).getVisibility());
         }
+    }
+
+    @Test
+    public void authenticationFieldsUseExplicitNeonColors() {
+        try (ActivityController<MainActivity> controller =
+                     Robolectric.buildActivity(MainActivity.class).setup()) {
+            MainActivity activity = controller.get();
+            EditText[] fields = {
+                    activity.findViewById(R.id.login_username),
+                    activity.findViewById(R.id.login_password),
+                    activity.findViewById(R.id.register_username),
+                    activity.findViewById(R.id.register_password),
+                    activity.findViewById(R.id.register_confirmation)
+            };
+
+            for (EditText field : fields) {
+                assertEquals(activity.getColor(R.color.on_background),
+                        field.getCurrentTextColor());
+                assertEquals(activity.getColor(R.color.text_secondary),
+                        field.getHintTextColors().getDefaultColor());
+                assertEquals(R.drawable.bg_neon_input,
+                        shadowOf(field.getBackground()).getCreatedFromResId());
+            }
+        }
+    }
+
+    @Test
+    public void registrationRemainsInsideScrollablePanel() {
+        try (ActivityController<MainActivity> controller =
+                     Robolectric.buildActivity(MainActivity.class).setup()) {
+            MainActivity activity = controller.get();
+            int cardId = activity.getResources().getIdentifier(
+                    "register_card", "id", activity.getPackageName());
+            assertTrue("register_card must exist", cardId != 0);
+
+            View panel = activity.findViewById(R.id.register_panel);
+            View card = activity.findViewById(cardId);
+            View lastAction = activity.findViewById(R.id.register_back_button);
+            assertTrue(isDescendantOf(card, panel));
+            assertTrue(isDescendantOf(lastAction, panel));
+        }
+    }
+
+    @Test
+    public void neonLayoutKeepsHudBeforeGameContainer() {
+        try (ActivityController<MainActivity> controller =
+                     Robolectric.buildActivity(MainActivity.class).setup()) {
+            MainActivity activity = controller.get();
+            ViewGroup root = activity.findViewById(R.id.game_root);
+            View hud = activity.findViewById(R.id.hud_container);
+            View gameContainer = activity.findViewById(R.id.game_container);
+
+            assertSame(root, hud.getParent());
+            assertSame(root, gameContainer.getParent());
+            assertTrue(root.indexOfChild(hud) < root.indexOfChild(gameContainer));
+            assertEquals(R.drawable.bg_app_gradient,
+                    shadowOf(root.getBackground()).getCreatedFromResId());
+        }
+    }
+
+    private static boolean isDescendantOf(View child, View ancestor) {
+        ViewParent parent = child.getParent();
+        while (parent != null) {
+            if (parent == ancestor) return true;
+            parent = parent.getParent();
+        }
+        return false;
     }
 
     private static void addAccelerometer() {

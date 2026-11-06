@@ -48,4 +48,6 @@
     <string name="auth_generic_error">Không thể xử lý yêu cầu. Vui lòng thử lại</string>
     <string name="auth_registered">Đăng ký thành công. Hãy đăng nhập</string>
     <string name="current_user_format">Người chơi: %1$s</string>
+    <string name="login_subtitle">Đăng nhập để tiếp tục hành trình né chướng ngại vật.</string>
+    <string name="register_subtitle">Tạo hồ sơ người chơi để lưu điểm và thành tích trên thiết bị.</string>
 </resources>
