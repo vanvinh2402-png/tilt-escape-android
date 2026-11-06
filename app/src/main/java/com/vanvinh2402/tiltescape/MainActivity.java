@@ -67,7 +67,7 @@ public final class MainActivity extends AppCompatActivity {
         gameResultsCoordinator = GameResultsCoordinator.create(
                 new SQLiteGameResultRepository(this));
         achievementsUiController = new AchievementsUiController(
-                this, engine, gameResultsCoordinator);
+                this, engine, gameResultsCoordinator, activeSession::requireUserId);
         achievementsUiController.bind();
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
@@ -100,7 +100,9 @@ public final class MainActivity extends AppCompatActivity {
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT));
         GameResultRecorder resultRecorder = new GameResultRecorder(
-                gameResultsCoordinator::save, System::currentTimeMillis);
+                gameResultsCoordinator::save,
+                activeSession::requireUserId,
+                System::currentTimeMillis);
         gameplayUiController = new GameplayUiController(
                 this, engine, gameView, resultRecorder,
                 achievementsUiController::isVisible,

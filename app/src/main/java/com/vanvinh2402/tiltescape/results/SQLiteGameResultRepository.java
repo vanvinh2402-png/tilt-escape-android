@@ -23,35 +23,41 @@ public final class SQLiteGameResultRepository implements GameResultRepository {
     }
 
     @Override
-    public long insert(GameResult result) {
+    public long insert(long userId, GameResult result) {
+        validateUserId(userId);
         validate(result);
         ContentValues values = new ContentValues();
         values.put("score", result.getScore());
         values.put("survival_millis", result.getSurvivalMillis());
         values.put("played_at_epoch_millis", result.getPlayedAtEpochMillis());
+        values.put("user_id", userId);
         return databaseHelper.getWritableDatabase().insertOrThrow(
                 TiltEscapeDatabaseHelper.TABLE_GAME_RESULTS, null, values);
     }
 
     @Override
-    public int getHighScore() {
+    public int getHighScore(long userId) {
+        validateUserId(userId);
         try (Cursor cursor = databaseHelper.getReadableDatabase().rawQuery(
-                "SELECT COALESCE(MAX(score), 0) AS high_score FROM game_results", null)) {
+                "SELECT COALESCE(MAX(score), 0) AS high_score FROM game_results "
+                        + "WHERE user_id = ?",
+                new String[] {Long.toString(userId)})) {
             if (!cursor.moveToFirst()) return 0;
             return cursor.getInt(cursor.getColumnIndexOrThrow("high_score"));
         }
     }
 
     @Override
-    public List<GameResult> getRecent(int limit) {
+    public List<GameResult> getRecent(long userId, int limit) {
+        validateUserId(userId);
         if (limit <= 0) throw new IllegalArgumentException("limit must be positive");
         List<GameResult> results = new ArrayList<>();
         SQLiteDatabase database = databaseHelper.getReadableDatabase();
         try (Cursor cursor = database.query(
                 TiltEscapeDatabaseHelper.TABLE_GAME_RESULTS,
                 RESULT_COLUMNS,
-                null,
-                null,
+                "user_id = ?",
+                new String[] {Long.toString(userId)},
                 null,
                 null,
                 "played_at_epoch_millis DESC, id DESC",
@@ -85,5 +91,9 @@ public final class SQLiteGameResultRepository implements GameResultRepository {
         if (result.getPlayedAtEpochMillis() < 0L) {
             throw new IllegalArgumentException("playedAtEpochMillis must be non-negative");
         }
+    }
+
+    private static void validateUserId(long userId) {
+        if (userId <= 0L) throw new IllegalArgumentException("userId must be positive");
     }
 }

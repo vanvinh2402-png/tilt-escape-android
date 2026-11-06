@@ -22,7 +22,7 @@ public final class GameResultsCoordinatorTest {
         Harness harness = new Harness();
         GameResult result = result(4, 1_000L);
 
-        harness.coordinator.save(result);
+        harness.coordinator.save(7L, result);
 
         assertEquals(0, harness.repository.results.size());
         harness.databaseExecutor.runAll();
@@ -35,8 +35,8 @@ public final class GameResultsCoordinatorTest {
         Harness harness = new Harness();
         RecordingCallback callback = new RecordingCallback();
 
-        harness.coordinator.save(result(9, 2_000L));
-        harness.coordinator.loadAchievements(callback);
+        harness.coordinator.save(7L, result(9, 2_000L));
+        harness.coordinator.loadAchievements(7L, callback);
         harness.databaseExecutor.runAll();
 
         assertEquals(0, callback.loadedCount);
@@ -48,13 +48,32 @@ public final class GameResultsCoordinatorTest {
     }
 
     @Test
+    public void differentUsersNeverMix() {
+        Harness harness = new Harness();
+        RecordingCallback first = new RecordingCallback();
+        RecordingCallback second = new RecordingCallback();
+
+        harness.coordinator.save(7L, result(7, 1_000L));
+        harness.coordinator.save(9L, result(99, 2_000L));
+        harness.coordinator.loadAchievements(7L, first);
+        harness.coordinator.loadAchievements(9L, second);
+        harness.databaseExecutor.runAll();
+        harness.mainDispatcher.runAll();
+
+        assertEquals(7, first.data.getHighScore());
+        assertEquals(1, first.data.getRecent().size());
+        assertEquals(99, second.data.getHighScore());
+        assertEquals(1, second.data.getRecent().size());
+    }
+
+    @Test
     public void insertFailureDoesNotEscapeOrPreventLaterLoad() {
         Harness harness = new Harness();
         RecordingCallback callback = new RecordingCallback();
         harness.repository.failNextInsert = true;
 
-        harness.coordinator.save(result(3, 1_000L));
-        harness.coordinator.loadAchievements(callback);
+        harness.coordinator.save(7L, result(3, 1_000L));
+        harness.coordinator.loadAchievements(7L, callback);
         harness.databaseExecutor.runAll();
         harness.mainDispatcher.runAll();
 
@@ -69,7 +88,7 @@ public final class GameResultsCoordinatorTest {
         RecordingCallback callback = new RecordingCallback();
         harness.repository.failQueries = true;
 
-        harness.coordinator.loadAchievements(callback);
+        harness.coordinator.loadAchievements(7L, callback);
         harness.databaseExecutor.runAll();
         harness.mainDispatcher.runAll();
 
@@ -82,7 +101,7 @@ public final class GameResultsCoordinatorTest {
         Harness harness = new Harness();
         RecordingCallback callback = new RecordingCallback();
 
-        harness.coordinator.loadAchievements(callback);
+        harness.coordinator.loadAchievements(7L, callback);
         harness.databaseExecutor.runAll();
         harness.coordinator.close();
         harness.mainDispatcher.runAll();
@@ -100,8 +119,8 @@ public final class GameResultsCoordinatorTest {
 
         harness.coordinator.close();
         int queuedAfterClose = harness.databaseExecutor.queuedCount();
-        harness.coordinator.save(result(2, 1_000L));
-        harness.coordinator.loadAchievements(callback);
+        harness.coordinator.save(7L, result(2, 1_000L));
+        harness.coordinator.loadAchievements(7L, callback);
         harness.coordinator.close();
 
         assertEquals(queuedAfterClose, harness.databaseExecutor.queuedCount());
@@ -165,12 +184,13 @@ public final class GameResultsCoordinatorTest {
 
     private static final class FakeRepository implements GameResultRepository {
         final List<GameResult> results = new ArrayList<>();
+        final List<Long> owners = new ArrayList<>();
         boolean failNextInsert;
         boolean failQueries;
         int closeCount;
 
         @Override
-        public long insert(GameResult result) {
+        public long insert(long userId, GameResult result) {
             if (failNextInsert) {
                 failNextInsert = false;
                 throw new IllegalStateException("insert failed");
@@ -178,21 +198,30 @@ public final class GameResultsCoordinatorTest {
             long id = results.size() + 1L;
             results.add(new GameResult(id, result.getScore(), result.getSurvivalMillis(),
                     result.getPlayedAtEpochMillis()));
+            owners.add(userId);
             return id;
         }
 
         @Override
-        public int getHighScore() {
+        public int getHighScore(long userId) {
             if (failQueries) throw new IllegalStateException("query failed");
             int high = 0;
-            for (GameResult result : results) high = Math.max(high, result.getScore());
+            for (int index = 0; index < results.size(); index++) {
+                if (owners.get(index) == userId) {
+                    high = Math.max(high, results.get(index).getScore());
+                }
+            }
             return high;
         }
 
         @Override
-        public List<GameResult> getRecent(int limit) {
+        public List<GameResult> getRecent(long userId, int limit) {
             if (failQueries) throw new IllegalStateException("query failed");
-            return new ArrayList<>(results.subList(0, Math.min(limit, results.size())));
+            List<GameResult> owned = new ArrayList<>();
+            for (int index = 0; index < results.size() && owned.size() < limit; index++) {
+                if (owners.get(index) == userId) owned.add(results.get(index));
+            }
+            return owned;
         }
 
         @Override

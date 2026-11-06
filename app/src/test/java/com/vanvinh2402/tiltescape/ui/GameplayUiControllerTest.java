@@ -35,7 +35,8 @@ public final class GameplayUiControllerTest {
                     activity,
                     engine,
                     gameView,
-                    new GameResultRecorder(result -> { }, () -> 1_000L),
+                    new GameResultRecorder((userId, result) -> { }, () -> 1L,
+                            () -> 1_000L),
                     () -> false,
                     () -> false);
             controller.bind();
@@ -55,7 +56,8 @@ public final class GameplayUiControllerTest {
             GameEngine engine = new GameEngine();
             GameView gameView = new GameView(activity, engine, () -> 0.0f);
             List<GameResult> saved = new ArrayList<>();
-            GameResultRecorder recorder = new GameResultRecorder(saved::add, () -> 1_000L);
+            GameResultRecorder recorder = new GameResultRecorder(
+                    (userId, result) -> saved.add(result), () -> 1L, () -> 1_000L);
             GameplayUiController controller = new GameplayUiController(
                     activity, engine, gameView, recorder, () -> false);
 

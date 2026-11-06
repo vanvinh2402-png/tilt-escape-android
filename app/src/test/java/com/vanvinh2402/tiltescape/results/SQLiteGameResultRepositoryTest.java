@@ -11,6 +11,8 @@ import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.vanvinh2402.tiltescape.data.TiltEscapeDatabaseHelper;
+import com.vanvinh2402.tiltescape.auth.PasswordHash;
+import com.vanvinh2402.tiltescape.auth.SQLiteAccountRepository;
 
 import org.junit.After;
 import org.junit.Before;
@@ -27,18 +29,56 @@ import java.util.Set;
 public final class SQLiteGameResultRepositoryTest {
     private Context context;
     private SQLiteGameResultRepository repository;
+    private SQLiteAccountRepository accountRepository;
+    private long userId;
 
     @Before
     public void setUp() {
         context = RuntimeEnvironment.getApplication();
         context.deleteDatabase(TiltEscapeDatabaseHelper.DATABASE_NAME);
         repository = new SQLiteGameResultRepository(context);
+        accountRepository = new SQLiteAccountRepository(context);
+        userId = accountRepository.insert("Default", "default",
+                new PasswordHash("PBKDF2WithHmacSHA256", 1,
+                        new byte[] {1}, new byte[] {2}), 0L);
     }
 
     @After
     public void tearDown() {
         if (repository != null) repository.close();
+        if (accountRepository != null) accountRepository.close();
         context.deleteDatabase(TiltEscapeDatabaseHelper.DATABASE_NAME);
+    }
+
+    @Test
+    public void resultsAreIsolatedByAccountAndExcludeLegacyGuestRows() {
+        SQLiteAccountRepository accounts = new SQLiteAccountRepository(context);
+        PasswordHash hash = new PasswordHash("PBKDF2WithHmacSHA256", 1,
+                new byte[] {1}, new byte[] {2});
+        long firstUser = accounts.insert("First", "first", hash, 1L);
+        long secondUser = accounts.insert("Second", "second", hash, 2L);
+
+        repository.insert(firstUser, new GameResult(0L, 5, 1_000L, 10_000L));
+        repository.insert(firstUser, new GameResult(0L, 12, 2_000L, 20_000L));
+        repository.insert(secondUser, new GameResult(0L, 99, 3_000L, 30_000L));
+        TiltEscapeDatabaseHelper helper = new TiltEscapeDatabaseHelper(context);
+        ContentValues guest = new ContentValues();
+        guest.put("score", 500);
+        guest.put("survival_millis", 4_000L);
+        guest.put("played_at_epoch_millis", 40_000L);
+        helper.getWritableDatabase().insertOrThrow("game_results", null, guest);
+        helper.close();
+
+        assertEquals(12, repository.getHighScore(firstUser));
+        assertEquals(2, repository.getRecent(firstUser, 10).size());
+        assertEquals(12, repository.getRecent(firstUser, 10).get(0).getScore());
+        assertEquals(99, repository.getHighScore(secondUser));
+        assertEquals(1, repository.getRecent(secondUser, 10).size());
+        assertIllegalArgument(() ->
+                repository.insert(0L, new GameResult(0L, 1, 1L, 1L)));
+        assertIllegalArgument(() -> repository.getHighScore(-1L));
+        assertIllegalArgument(() -> repository.getRecent(0L, 10));
+        accounts.close();
     }
 
     @Test
@@ -57,11 +97,11 @@ public final class SQLiteGameResultRepositoryTest {
 
     @Test
     public void insertAndReopenPreservesEveryField() {
-        repository.insert(new GameResult(0L, 8, 12_500L, 1_793_610_000_000L));
+        repository.insert(userId, new GameResult(0L, 8, 12_500L, 1_793_610_000_000L));
         repository.close();
         repository = new SQLiteGameResultRepository(context);
 
-        GameResult stored = repository.getRecent(1).get(0);
+        GameResult stored = repository.getRecent(userId, 1).get(0);
         assertTrue(stored.getId() > 0L);
         assertEquals(8, stored.getScore());
         assertEquals(12_500L, stored.getSurvivalMillis());
@@ -72,11 +112,12 @@ public final class SQLiteGameResultRepositoryTest {
     public void highScoreUsesAllRowsWhileRecentReturnsOnlyTenNewest() {
         for (int index = 0; index < 12; index++) {
             int score = index == 0 ? 99 : index;
-            repository.insert(new GameResult(0L, score, index * 1_000L, 10_000L + index));
+            repository.insert(userId,
+                    new GameResult(0L, score, index * 1_000L, 10_000L + index));
         }
 
-        List<GameResult> recent = repository.getRecent(10);
-        assertEquals(99, repository.getHighScore());
+        List<GameResult> recent = repository.getRecent(userId, 10);
+        assertEquals(99, repository.getHighScore(userId));
         assertEquals(10, recent.size());
         assertEquals(11, recent.get(0).getScore());
         assertEquals(2, recent.get(9).getScore());
@@ -84,10 +125,12 @@ public final class SQLiteGameResultRepositoryTest {
 
     @Test
     public void sameTimestampOrdersHigherIdFirst() {
-        long firstId = repository.insert(new GameResult(0L, 4, 1_000L, 50_000L));
-        long secondId = repository.insert(new GameResult(0L, 7, 2_000L, 50_000L));
+        long firstId = repository.insert(userId,
+                new GameResult(0L, 4, 1_000L, 50_000L));
+        long secondId = repository.insert(userId,
+                new GameResult(0L, 7, 2_000L, 50_000L));
 
-        List<GameResult> recent = repository.getRecent(2);
+        List<GameResult> recent = repository.getRecent(userId, 2);
         assertTrue(secondId > firstId);
         assertEquals(secondId, recent.get(0).getId());
         assertEquals(firstId, recent.get(1).getId());
@@ -95,18 +138,21 @@ public final class SQLiteGameResultRepositoryTest {
 
     @Test
     public void zeroScoreIsStoredAndNegativeFieldsAreRejected() {
-        repository.insert(new GameResult(0L, 0, 0L, 0L));
-        assertEquals(0, repository.getRecent(1).get(0).getScore());
+        repository.insert(userId, new GameResult(0L, 0, 0L, 0L));
+        assertEquals(0, repository.getRecent(userId, 1).get(0).getScore());
 
-        assertIllegalArgument(() -> repository.insert(new GameResult(0L, -1, 0L, 0L)));
-        assertIllegalArgument(() -> repository.insert(new GameResult(0L, 0, -1L, 0L)));
-        assertIllegalArgument(() -> repository.insert(new GameResult(0L, 0, 0L, -1L)));
+        assertIllegalArgument(() ->
+                repository.insert(userId, new GameResult(0L, -1, 0L, 0L)));
+        assertIllegalArgument(() ->
+                repository.insert(userId, new GameResult(0L, 0, -1L, 0L)));
+        assertIllegalArgument(() ->
+                repository.insert(userId, new GameResult(0L, 0, 0L, -1L)));
     }
 
     @Test
     public void nonPositiveRecentLimitIsRejected() {
-        assertIllegalArgument(() -> repository.getRecent(0));
-        assertIllegalArgument(() -> repository.getRecent(-1));
+        assertIllegalArgument(() -> repository.getRecent(userId, 0));
+        assertIllegalArgument(() -> repository.getRecent(userId, -1));
     }
 
     @Test

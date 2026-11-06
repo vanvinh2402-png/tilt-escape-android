@@ -31,7 +31,8 @@ public final class GameplayUiController {
 
     public GameplayUiController(Activity activity, GameEngine engine, GameView gameView) {
         this(activity, engine, gameView,
-                new GameResultRecorder(result -> { }, System::currentTimeMillis),
+                new GameResultRecorder((userId, result) -> { }, () -> 1L,
+                        System::currentTimeMillis),
                 () -> false, () -> true);
     }
 

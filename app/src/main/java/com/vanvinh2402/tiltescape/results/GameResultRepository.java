@@ -3,11 +3,11 @@ package com.vanvinh2402.tiltescape.results;
 import java.util.List;
 
 public interface GameResultRepository extends AutoCloseable {
-    long insert(GameResult result);
+    long insert(long userId, GameResult result);
 
-    int getHighScore();
+    int getHighScore(long userId);
 
-    List<GameResult> getRecent(int limit);
+    List<GameResult> getRecent(long userId, int limit);
 
     @Override
     void close();

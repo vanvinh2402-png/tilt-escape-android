@@ -18,11 +18,13 @@ import java.text.DateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.function.LongSupplier;
 
 public final class AchievementsUiController {
     private final Activity activity;
     private final GameEngine engine;
     private final AchievementsLoader loader;
+    private final LongSupplier activeUserId;
     private final View panel;
     private final View readyPanel;
     private final TextView highScore;
@@ -35,9 +37,15 @@ public final class AchievementsUiController {
 
     public AchievementsUiController(Activity activity, GameEngine engine,
             AchievementsLoader loader) {
+        this(activity, engine, loader, () -> 1L);
+    }
+
+    public AchievementsUiController(Activity activity, GameEngine engine,
+            AchievementsLoader loader, LongSupplier activeUserId) {
         this.activity = Objects.requireNonNull(activity, "activity");
         this.engine = Objects.requireNonNull(engine, "engine");
         this.loader = Objects.requireNonNull(loader, "loader");
+        this.activeUserId = Objects.requireNonNull(activeUserId, "activeUserId");
         panel = activity.findViewById(R.id.achievements_panel);
         readyPanel = activity.findViewById(R.id.ready_panel);
         highScore = activity.findViewById(R.id.achievements_high_score);
@@ -56,6 +64,13 @@ public final class AchievementsUiController {
 
     public void open() {
         if (engine.getState() != GameState.READY || isVisible()) return;
+        long userId;
+        try {
+            userId = activeUserId.getAsLong();
+        } catch (RuntimeException noSession) {
+            return;
+        }
+        if (userId <= 0L) return;
         int generation = ++requestGeneration;
         readyPanel.setVisibility(View.GONE);
         panel.setVisibility(View.VISIBLE);
@@ -64,7 +79,7 @@ public final class AchievementsUiController {
         error.setVisibility(View.GONE);
         resultsContainer.removeAllViews();
         highScore.setText(activity.getString(R.string.achievements_high_score_format, 0));
-        loader.loadAchievements(new GameResultsCoordinator.Callback() {
+        loader.loadAchievements(userId, new GameResultsCoordinator.Callback() {
             @Override
             public void onLoaded(AchievementsData data) {
                 if (!isCurrent(generation)) return;

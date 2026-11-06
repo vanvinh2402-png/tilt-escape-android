@@ -41,11 +41,12 @@ public final class GameResultsCoordinator implements AchievementsLoader, AutoClo
                 mainHandler::post);
     }
 
-    public void save(GameResult result) {
+    public void save(long userId, GameResult result) {
+        if (userId <= 0L) throw new IllegalArgumentException("userId must be positive");
         Objects.requireNonNull(result, "result");
         submit(() -> {
             try {
-                repository.insert(result);
+                repository.insert(userId, result);
             } catch (RuntimeException error) {
                 Log.e(TAG, "Unable to save game result", error);
             }
@@ -53,13 +54,14 @@ public final class GameResultsCoordinator implements AchievementsLoader, AutoClo
     }
 
     @Override
-    public void loadAchievements(Callback callback) {
+    public void loadAchievements(long userId, Callback callback) {
+        if (userId <= 0L) throw new IllegalArgumentException("userId must be positive");
         Objects.requireNonNull(callback, "callback");
         submit(() -> {
             try {
                 AchievementsData data = new AchievementsData(
-                        repository.getHighScore(),
-                        repository.getRecent(RECENT_LIMIT));
+                        repository.getHighScore(userId),
+                        repository.getRecent(userId, RECENT_LIMIT));
                 dispatch(() -> callback.onLoaded(data));
             } catch (RuntimeException error) {
                 Log.e(TAG, "Unable to load achievements", error);

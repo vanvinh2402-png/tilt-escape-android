@@ -41,6 +41,7 @@ public final class AchievementsUiControllerTest {
             assertEquals(View.VISIBLE,
                     harness.activity.findViewById(R.id.achievements_panel).getVisibility());
             assertEquals(1, harness.loader.loadCount);
+            assertEquals(42L, harness.loader.lastUserId);
         }
     }
 
@@ -149,7 +150,7 @@ public final class AchievementsUiControllerTest {
         final FakeLoader loader = new FakeLoader();
         final GameplayUiController gameplay = new GameplayUiController(activity, engine, gameView);
         final AchievementsUiController achievements =
-                new AchievementsUiController(activity, engine, loader);
+                new AchievementsUiController(activity, engine, loader, () -> 42L);
 
         Harness() {
             gameplay.bind();
@@ -167,11 +168,14 @@ public final class AchievementsUiControllerTest {
 
     private static final class FakeLoader implements AchievementsLoader {
         int loadCount;
+        long lastUserId;
         GameResultsCoordinator.Callback callback;
 
         @Override
-        public void loadAchievements(GameResultsCoordinator.Callback requestedCallback) {
+        public void loadAchievements(
+                long userId, GameResultsCoordinator.Callback requestedCallback) {
             loadCount++;
+            lastUserId = userId;
             callback = requestedCallback;
         }
 
