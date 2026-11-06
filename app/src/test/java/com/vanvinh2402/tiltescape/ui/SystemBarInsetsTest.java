@@ -45,6 +45,22 @@ public final class SystemBarInsetsTest {
         assertPadding(root, 0, 30, 0, 50);
     }
 
+    @Test
+    @Config(sdk = 35)
+    public void api35KeepsContentAboveVisibleKeyboard() {
+        View root = new View(RuntimeEnvironment.getApplication());
+        root.setPadding(1, 2, 3, 4);
+        SystemBarInsets.applyToPadding(root);
+
+        WindowInsetsCompat value = new WindowInsetsCompat.Builder()
+                .setInsets(WindowInsetsCompat.Type.systemBars(), Insets.of(0, 30, 0, 50))
+                .setInsets(WindowInsetsCompat.Type.ime(), Insets.of(0, 0, 0, 700))
+                .build();
+        ViewCompat.dispatchApplyWindowInsets(root, value);
+
+        assertPadding(root, 1, 32, 3, 704);
+    }
+
     private static void dispatch(View view, Insets insets) {
         WindowInsetsCompat value = new WindowInsetsCompat.Builder()
                 .setInsets(WindowInsetsCompat.Type.systemBars(), insets)

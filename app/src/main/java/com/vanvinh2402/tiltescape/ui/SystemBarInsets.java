@@ -17,11 +17,13 @@ public final class SystemBarInsets {
         ViewCompat.setOnApplyWindowInsetsListener(root, (view, windowInsets) -> {
             androidx.core.graphics.Insets bars = windowInsets.getInsets(
                     WindowInsetsCompat.Type.systemBars());
+            androidx.core.graphics.Insets ime = windowInsets.getInsets(
+                    WindowInsetsCompat.Type.ime());
             view.setPadding(
                     initialLeft + bars.left,
                     initialTop + bars.top,
                     initialRight + bars.right,
-                    initialBottom + bars.bottom);
+                    initialBottom + Math.max(bars.bottom, ime.bottom));
             return windowInsets;
         });
         ViewCompat.requestApplyInsets(root);
