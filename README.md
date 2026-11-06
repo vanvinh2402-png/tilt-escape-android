@@ -1,5 +1,11 @@
 # TILT ESCAPE
 
+## Giao diện Neon Focus
+
+Ứng dụng dùng giao diện Neon Focus thống nhất cho Đăng nhập, Đăng ký, menu chính, Tạm dừng, Kết thúc và Thành tích. Form được đặt trong card tối có độ tương phản cao; ô nhập có màu chữ/hint rõ ràng, viền focus tím; nút chính dùng gradient tím–xanh và điểm nhấn xanh ngọc.
+
+Giao diện giữ nguyên toàn bộ luồng tài khoản, SQLite và gameplay, hỗ trợ API 24–35, vùng chạm tối thiểu 48dp và ScrollView cho form xác thực trên màn hình dọc.
+
 ## Tài khoản local
 
 Ứng dụng hiện yêu cầu tài khoản cục bộ trước khi chơi:

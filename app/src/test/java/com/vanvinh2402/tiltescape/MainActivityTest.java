@@ -222,6 +222,41 @@ public final class MainActivityTest {
         }
     }
 
+    @Test
+    public void achievementsUseReadableNeonSurface() {
+        try (ActivityController<MainActivity> controller =
+                     Robolectric.buildActivity(MainActivity.class).setup()) {
+            MainActivity activity = controller.get();
+            View panel = activity.findViewById(R.id.achievements_panel);
+            TextView highScore = activity.findViewById(R.id.achievements_high_score);
+            TextView loading = activity.findViewById(R.id.achievements_loading);
+            TextView empty = activity.findViewById(R.id.achievements_empty);
+            TextView error = activity.findViewById(R.id.achievements_error);
+            View results = activity.findViewById(R.id.achievements_results_container);
+            Button back = activity.findViewById(R.id.achievements_back_button);
+            View resultRow = activity.getLayoutInflater().inflate(
+                    R.layout.item_game_result, null, false);
+
+            assertEquals(R.drawable.bg_app_gradient,
+                    shadowOf(panel.getBackground()).getCreatedFromResId());
+            assertEquals(activity.getColor(R.color.accent),
+                    highScore.getCurrentTextColor());
+            assertEquals(activity.getColor(R.color.on_background),
+                    loading.getCurrentTextColor());
+            assertEquals(activity.getColor(R.color.on_background),
+                    empty.getCurrentTextColor());
+            assertEquals(activity.getColor(R.color.score_accent),
+                    error.getCurrentTextColor());
+            assertTrue(isDescendantOf(results, panel));
+            assertTrue(back.getMinHeight() >= activity.getResources()
+                    .getDimensionPixelSize(R.dimen.touch_target_min));
+            assertEquals(R.drawable.bg_button_secondary,
+                    shadowOf(back.getBackground()).getCreatedFromResId());
+            assertEquals(R.drawable.bg_result_item,
+                    shadowOf(resultRow.getBackground()).getCreatedFromResId());
+        }
+    }
+
     private static boolean isDescendantOf(View child, View ancestor) {
         ViewParent parent = child.getParent();
         while (parent != null) {

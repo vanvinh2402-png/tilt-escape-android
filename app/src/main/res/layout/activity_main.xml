@@ -431,7 +431,8 @@
                 android:id="@+id/achievements_panel"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/background"
+                android:background="@drawable/bg_app_gradient"
+                android:clipToPadding="false"
                 android:fillViewport="true"
                 android:visibility="gone">
 
@@ -440,21 +441,20 @@
                     android:layout_height="wrap_content"
                     android:gravity="center_horizontal"
                     android:orientation="vertical"
-                    android:padding="24dp">
+                    android:padding="@dimen/screen_padding">
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/achievements_title"
-                        android:textColor="@color/on_background"
-                        android:textSize="28sp"
-                        android:textStyle="bold" />
+                        android:textAppearance="@style/TextAppearance.TiltEscape.Title" />
 
                     <TextView
                         android:id="@+id/achievements_high_score"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="20dp"
+                        android:background="@drawable/bg_neon_card"
                         android:gravity="center"
                         android:padding="20dp"
                         android:text="@string/score_zero"
@@ -467,8 +467,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
                         android:text="@string/achievements_recent_title"
-                        android:textColor="@color/on_background"
-                        android:textSize="16sp"
+                        android:textAppearance="@style/TextAppearance.TiltEscape.Body"
                         android:textStyle="bold" />
 
                     <TextView
@@ -478,7 +477,7 @@
                         android:gravity="center"
                         android:padding="20dp"
                         android:text="@string/achievements_loading"
-                        android:textColor="@color/on_background"
+                        android:textAppearance="@style/TextAppearance.TiltEscape.Body"
                         android:visibility="gone" />
 
                     <TextView
@@ -488,7 +487,7 @@
                         android:gravity="center"
                         android:padding="20dp"
                         android:text="@string/achievements_empty"
-                        android:textColor="@color/on_background"
+                        android:textAppearance="@style/TextAppearance.TiltEscape.Body"
                         android:visibility="gone" />
 
                     <TextView
@@ -498,17 +497,19 @@
                         android:gravity="center"
                         android:padding="20dp"
                         android:text="@string/achievements_error"
-                        android:textColor="@color/score_accent"
+                        android:textAppearance="@style/TextAppearance.TiltEscape.Error"
                         android:visibility="gone" />
 
                     <LinearLayout
                         android:id="@+id/achievements_results_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
                         android:orientation="vertical" />
 
                     <Button
                         android:id="@+id/achievements_back_button"
+                        style="@style/Widget.TiltEscape.Button.Secondary"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="16dp"
