@@ -197,6 +197,31 @@ public final class MainActivityTest {
         }
     }
 
+    @Test
+    public void neonActionsKeepAccessibleTouchTargets() {
+        try (ActivityController<MainActivity> controller =
+                     Robolectric.buildActivity(MainActivity.class).setup()) {
+            MainActivity activity = controller.get();
+            int minimum = activity.getResources().getDimensionPixelSize(
+                    R.dimen.touch_target_min);
+            Button[] actions = {
+                    activity.findViewById(R.id.start_button),
+                    activity.findViewById(R.id.pause_button),
+                    activity.findViewById(R.id.resume_button),
+                    activity.findViewById(R.id.restart_button),
+                    activity.findViewById(R.id.pause_main_menu_button),
+                    activity.findViewById(R.id.play_again_button),
+                    activity.findViewById(R.id.game_over_main_menu_button)
+            };
+
+            for (Button action : actions) {
+                assertTrue(action.getMinHeight() >= minimum);
+                assertEquals(activity.getColor(R.color.on_background),
+                        action.getCurrentTextColor());
+            }
+        }
+    }
+
     private static boolean isDescendantOf(View child, View ancestor) {
         ViewParent parent = child.getParent();
         while (parent != null) {

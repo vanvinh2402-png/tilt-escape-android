@@ -16,6 +16,10 @@ import com.vanvinh2402.tiltescape.game.WorldRect;
 import com.vanvinh2402.tiltescape.input.TiltInput;
 
 public final class GameView extends View implements Choreographer.FrameCallback, GameLoop {
+    static final int BACKGROUND_COLOR = Color.rgb(9, 11, 22);
+    static final int PLAYER_COLOR = Color.rgb(42, 217, 186);
+    static final int OBSTACLE_COLOR = Color.rgb(255, 102, 122);
+
     private final GameEngine engine;
     private final TiltInput tiltInput;
     private final FrameClock frameClock = new FrameClock();
@@ -29,9 +33,9 @@ public final class GameView extends View implements Choreographer.FrameCallback,
         super(context);
         this.engine = engine;
         this.tiltInput = tiltInput;
-        backgroundPaint.setColor(Color.rgb(16, 19, 31));
-        playerPaint.setColor(Color.rgb(32, 214, 181));
-        obstaclePaint.setColor(Color.rgb(255, 94, 109));
+        backgroundPaint.setColor(BACKGROUND_COLOR);
+        playerPaint.setColor(PLAYER_COLOR);
+        obstaclePaint.setColor(OBSTACLE_COLOR);
         setContentDescription(context.getString(com.vanvinh2402.tiltescape.R.string.playfield_description));
         setClickable(true);
         setFocusable(true);

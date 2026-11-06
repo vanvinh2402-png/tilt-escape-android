@@ -3,6 +3,8 @@ package com.vanvinh2402.tiltescape.ui;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
+import android.graphics.Color;
+
 import com.vanvinh2402.tiltescape.game.GameEngine;
 import com.vanvinh2402.tiltescape.game.GameState;
 import com.vanvinh2402.tiltescape.game.WorldRect;
@@ -114,6 +116,21 @@ public final class GameViewTest {
         assertEquals(RuntimeEnvironment.getApplication().getString(
                 com.vanvinh2402.tiltescape.R.string.playfield_description),
                 view.getContentDescription().toString());
+    }
+
+    @Test
+    public void usesApprovedNeonPalette() {
+        assertEquals(Color.rgb(9, 11, 22), readStaticColor("BACKGROUND_COLOR"));
+        assertEquals(Color.rgb(42, 217, 186), readStaticColor("PLAYER_COLOR"));
+        assertEquals(Color.rgb(255, 102, 122), readStaticColor("OBSTACLE_COLOR"));
+    }
+
+    private static int readStaticColor(String fieldName) {
+        try {
+            return GameView.class.getDeclaredField(fieldName).getInt(null);
+        } catch (ReflectiveOperationException error) {
+            throw new AssertionError("Missing package-visible color: " + fieldName, error);
+        }
     }
 
     private static final class CountingTiltInput implements TiltInput {
