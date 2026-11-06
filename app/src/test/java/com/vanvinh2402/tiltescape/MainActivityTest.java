@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import static org.robolectric.Shadows.shadowOf;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.view.View;
@@ -28,6 +29,15 @@ import org.robolectric.shadows.ShadowSensorManager;
 
 @RunWith(RobolectricTestRunner.class)
 public final class MainActivityTest {
+    @Test
+    public void appBackupIsDisabledForInstallationLocalAccounts() {
+        try (ActivityController<MainActivity> controller =
+                     Robolectric.buildActivity(MainActivity.class).setup()) {
+            int flags = controller.get().getApplicationInfo().flags;
+            assertEquals(0, flags & ApplicationInfo.FLAG_ALLOW_BACKUP);
+        }
+    }
+
     @Test
     public void achievementsViewsExistInTheMainLayout() {
         try (ActivityController<MainActivity> controller =

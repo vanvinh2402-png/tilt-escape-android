@@ -98,6 +98,26 @@ public final class AccountCoordinatorTest {
         assertEquals(0, late.count);
     }
 
+    @Test
+    public void unexpectedExecutorRejectionCompletesWithError() {
+        FakeRepository repository = new FakeRepository();
+        QueuedDispatcher main = new QueuedDispatcher();
+        AccountCoordinator coordinator = new AccountCoordinator(
+                repository,
+                new PasswordHasher(new PredictableRandom(), 26, 1_000),
+                new RejectingExecutor(),
+                main::post,
+                () -> 1L);
+        RecordingCallback callback = new RecordingCallback();
+
+        coordinator.register(
+                validUsername("Player"), "secret1".toCharArray(), callback);
+        main.runAll();
+
+        assertEquals(1, callback.count);
+        assertEquals(AuthOutcome.Status.ERROR, callback.outcome.getStatus());
+    }
+
     private static void assertOutcome(
             Harness harness, Operation operation, AuthOutcome.Status expected) {
         RecordingCallback callback = new RecordingCallback();
@@ -218,5 +238,16 @@ public final class AccountCoordinatorTest {
         @Override public boolean awaitTermination(long timeout, TimeUnit unit) {
             return isTerminated();
         }
+    }
+
+    private static final class RejectingExecutor extends AbstractExecutorService {
+        @Override public void execute(Runnable command) {
+            throw new IllegalStateException("rejected");
+        }
+        @Override public void shutdown() { }
+        @Override public List<Runnable> shutdownNow() { return new ArrayList<>(); }
+        @Override public boolean isShutdown() { return false; }
+        @Override public boolean isTerminated() { return false; }
+        @Override public boolean awaitTermination(long timeout, TimeUnit unit) { return false; }
     }
 }

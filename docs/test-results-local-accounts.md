@@ -8,17 +8,17 @@ Command:
 
 ```powershell
 .\gradlew.bat --stop
-.\gradlew.bat --no-daemon clean testDebugUnitTest assembleDebug lintDebug
+.\gradlew.bat --no-daemon --max-workers=1 clean testDebugUnitTest assembleDebug lintDebug
 ```
 
-Result: **BUILD SUCCESSFUL** in 35 seconds; 50 actionable tasks executed.
+Result: **BUILD SUCCESSFUL** in 52 seconds; 50 actionable tasks executed.
 
-- Unit tests: 123
+- Unit tests: 127
 - Failures: 0
 - Errors: 0
 - Android Lint: passed; report at `app/build/reports/lint-results-debug.html`
 - Debug APK: `app/build/outputs/apk/debug/app-debug.apk`
-- APK size: 3,227,598 bytes
+- APK size: 3,227,754 bytes
 
 ## Covered scenarios
 
@@ -31,6 +31,8 @@ Automated tests verify:
 - Account insert/read, duplicate handling and password metadata.
 - Persisted session save/restore/clear and malformed/stale preference cleanup.
 - Registration, login, session restore, logout, double-submit suppression and stale callback suppression.
+- Session storage errors preserve retryable persisted sessions; executor rejection returns an error instead of leaving loading active.
+- Password inputs are cleared on authentication navigation, and Android Backup is disabled for installation-local account data.
 - No-session gameplay gate and the no-accelerometer Login shell.
 - Results and achievements are isolated between two account IDs and exclude Guest rows.
 - A run retains the account captured on its first Playing snapshot even if the active account supplier changes before Game Over.

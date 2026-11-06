@@ -106,6 +106,39 @@ public final class AuthUiControllerTest {
         }
     }
 
+    @Test
+    public void restoreStorageErrorPreservesPersistedSessionForRetry() {
+        try (ActivityController<MainActivity> owner =
+                     Robolectric.buildActivity(MainActivity.class).setup()) {
+            Harness harness = new Harness(owner.get());
+            harness.store.id = 99L;
+            harness.controller.bind();
+            harness.controller.restoreSession();
+            harness.service.complete(AuthOutcome.of(AuthOutcome.Status.ERROR));
+
+            assertEquals(Long.valueOf(99L), harness.store.id);
+            assertEquals(View.VISIBLE, owner.get().findViewById(R.id.login_panel).getVisibility());
+        }
+    }
+
+    @Test
+    public void navigationClearsAllPasswordFields() {
+        try (ActivityController<MainActivity> owner =
+                     Robolectric.buildActivity(MainActivity.class).setup()) {
+            Harness harness = new Harness(owner.get());
+            harness.controller.bind();
+            setText(owner.get(), R.id.login_password, "secret1");
+            owner.get().<Button>findViewById(R.id.show_register_button).performClick();
+            assertEquals("", text(owner.get(), R.id.login_password));
+
+            setText(owner.get(), R.id.register_password, "secret2");
+            setText(owner.get(), R.id.register_confirmation, "secret2");
+            assertTrue(harness.controller.handleBack());
+            assertEquals("", text(owner.get(), R.id.register_password));
+            assertEquals("", text(owner.get(), R.id.register_confirmation));
+        }
+    }
+
     private static void setText(MainActivity activity, int id, String value) {
         activity.<EditText>findViewById(id).setText(value);
     }

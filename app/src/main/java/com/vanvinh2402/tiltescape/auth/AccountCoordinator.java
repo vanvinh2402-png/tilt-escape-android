@@ -60,6 +60,7 @@ public final class AccountCoordinator implements AuthService {
             }
         })) {
             Arrays.fill(workerPassword, '\0');
+            dispatchSubmissionFailure(callback);
         }
     }
 
@@ -89,13 +90,14 @@ public final class AccountCoordinator implements AuthService {
             }
         })) {
             Arrays.fill(workerPassword, '\0');
+            dispatchSubmissionFailure(callback);
         }
     }
 
     @Override
     public void restore(long userId, Callback callback) {
         Objects.requireNonNull(callback, "callback");
-        submit(() -> {
+        if (!submit(() -> {
             try {
                 AccountRecord account = repository.findById(userId);
                 if (account == null) {
@@ -108,7 +110,9 @@ public final class AccountCoordinator implements AuthService {
                 Log.e(TAG, "Local session restore failed", error);
                 dispatch(callback, AuthOutcome.of(AuthOutcome.Status.ERROR));
             }
-        });
+        })) {
+            dispatchSubmissionFailure(callback);
+        }
     }
 
     @Override
@@ -137,6 +141,12 @@ public final class AccountCoordinator implements AuthService {
         } catch (RuntimeException error) {
             Log.e(TAG, "Unable to queue local authentication work", error);
             return false;
+        }
+    }
+
+    private void dispatchSubmissionFailure(Callback callback) {
+        if (!closed.get()) {
+            dispatch(callback, AuthOutcome.of(AuthOutcome.Status.ERROR));
         }
     }
 

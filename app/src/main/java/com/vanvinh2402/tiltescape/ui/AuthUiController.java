@@ -108,8 +108,10 @@ public final class AuthUiController implements AutoCloseable {
                     && outcome.getUser() != null) {
                 authenticate(outcome.getUser());
             } else {
-                sessionStore.clear();
                 activeSession.clear();
+                if (outcome.getStatus() == AuthOutcome.Status.NO_SESSION) {
+                    sessionStore.clear();
+                }
                 showLogin(null, outcome.getStatus() == AuthOutcome.Status.ERROR
                         ? activity.getString(R.string.auth_generic_error) : null);
             }
@@ -242,6 +244,7 @@ public final class AuthUiController implements AutoCloseable {
     private void showRegister() {
         generation++;
         pending = false;
+        clearPasswordFields();
         setLoading(false, true);
         showError(registerError, null);
         loginPanel.setVisibility(View.GONE);
@@ -252,12 +255,19 @@ public final class AuthUiController implements AutoCloseable {
     private void showLogin(String username, String message) {
         generation++;
         pending = false;
+        clearPasswordFields();
         setLoading(false, false);
         if (username != null) loginUsername.setText(username);
         showError(loginError, message);
         registerPanel.setVisibility(View.GONE);
         readyPanel.setVisibility(View.GONE);
         loginPanel.setVisibility(View.VISIBLE);
+    }
+
+    private void clearPasswordFields() {
+        loginPassword.setText("");
+        registerPassword.setText("");
+        registerConfirmation.setText("");
     }
 
     private boolean isCurrent(long request) {
