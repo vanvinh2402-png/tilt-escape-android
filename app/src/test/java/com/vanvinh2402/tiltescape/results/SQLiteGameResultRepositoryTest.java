@@ -10,6 +10,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.vanvinh2402.tiltescape.data.TiltEscapeDatabaseHelper;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,12 +42,12 @@ public final class SQLiteGameResultRepositoryTest {
     }
 
     @Test
-    public void createsVersionOneTableAndIndexes() {
+    public void createsVersionTwoTablesAndIndexes() {
         TiltEscapeDatabaseHelper helper = new TiltEscapeDatabaseHelper(context);
         SQLiteDatabase database = helper.getWritableDatabase();
 
-        assertEquals(1, database.getVersion());
-        assertEquals(setOf("id", "score", "survival_millis", "played_at_epoch_millis"),
+        assertEquals(2, database.getVersion());
+        assertEquals(setOf("id", "score", "survival_millis", "played_at_epoch_millis", "user_id"),
                 pragmaNames(database, "PRAGMA table_info(game_results)", "name"));
         Set<String> indexes = pragmaNames(database, "PRAGMA index_list(game_results)", "name");
         assertTrue(indexes.contains("idx_game_results_played_at"));

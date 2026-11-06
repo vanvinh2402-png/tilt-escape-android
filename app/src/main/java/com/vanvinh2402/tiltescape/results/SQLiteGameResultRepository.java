@@ -5,6 +5,8 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import com.vanvinh2402.tiltescape.data.TiltEscapeDatabaseHelper;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
