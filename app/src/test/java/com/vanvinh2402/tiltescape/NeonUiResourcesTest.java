@@ -6,6 +6,7 @@ import static org.junit.Assert.assertTrue;
 
 import android.content.Context;
 import android.content.res.Resources;
+import android.content.res.XmlResourceParser;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 
@@ -13,6 +14,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 import org.robolectric.RuntimeEnvironment;
+import org.xmlpull.v1.XmlPullParser;
 
 @RunWith(RobolectricTestRunner.class)
 public final class NeonUiResourcesTest {
@@ -50,6 +52,13 @@ public final class NeonUiResourcesTest {
         assertDrawable("bg_result_item");
     }
 
+    @Test
+    public void customButtonsExposeAKeyboardFocusState() throws Exception {
+        assertFocusedSelectorItem("bg_button_primary");
+        assertFocusedSelectorItem("bg_button_secondary");
+        assertFocusedSelectorItem("bg_button_ghost");
+    }
+
     private void assertColor(String name, int expected) {
         int id = resources.getIdentifier(name, "color", context.getPackageName());
         assertTrue("Missing color resource: " + name, id != 0);
@@ -68,5 +77,26 @@ public final class NeonUiResourcesTest {
         assertTrue("Missing drawable resource: " + name, id != 0);
         Drawable drawable = resources.getDrawable(id, context.getTheme());
         assertNotNull(name, drawable);
+    }
+
+    private void assertFocusedSelectorItem(String name) throws Exception {
+        int id = resources.getIdentifier(name, "drawable", context.getPackageName());
+        assertTrue("Missing drawable resource: " + name, id != 0);
+        boolean hasFocusedItem = false;
+        try (XmlResourceParser parser = resources.getXml(id)) {
+            int event;
+            while ((event = parser.next()) != XmlPullParser.END_DOCUMENT) {
+                if (event != XmlPullParser.START_TAG || !"item".equals(parser.getName())) {
+                    continue;
+                }
+                for (int index = 0; index < parser.getAttributeCount(); index++) {
+                    if ("state_focused".equals(parser.getAttributeName(index))
+                            && parser.getAttributeBooleanValue(index, false)) {
+                        hasFocusedItem = true;
+                    }
+                }
+            }
+        }
+        assertTrue(name + " must provide a visible keyboard-focus state", hasFocusedItem);
     }
 }

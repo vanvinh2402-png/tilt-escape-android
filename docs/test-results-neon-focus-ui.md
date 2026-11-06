@@ -11,21 +11,22 @@ Commands:
 .\gradlew.bat --no-daemon --max-workers=1 clean testDebugUnitTest assembleDebug lintDebug
 ```
 
-Result: **BUILD SUCCESSFUL** in 53 seconds; 50 actionable tasks executed.
+Result: **BUILD SUCCESSFUL** in 44 seconds; 50 actionable tasks executed.
 
-- Unit tests: 136
+- Unit tests: 137
 - Failures: 0
 - Errors: 0
 - Android Lint: 0 errors, 19 warnings
 - Lint report: `app/build/reports/lint-results-debug.html`
 - Debug APK: `app/build/outputs/apk/debug/app-debug.apk`
-- APK size: 3,238,076 bytes
+- APK size: 3,238,324 bytes
 
 ## Covered Neon Focus behavior
 
 Automated tests verify:
 
 - Approved palette, 48dp minimum touch target, 52dp controls and all Neon drawables load.
+- Primary, secondary and ghost buttons expose a visible keyboard-focus state for API 24+.
 - Authentication fields use explicit readable text/hint colors and the focused/default Neon input selector.
 - Login/Register cards remain inside full-height ScrollViews and retain every controller-facing view ID.
 - HUD remains before the game container and the root uses the approved gradient.
