@@ -26,4 +26,26 @@
     <string name="achievements_back">Quay lại</string>
     <string name="achievements_position_format">%1$d</string>
     <string name="achievements_score_format">%1$d điểm</string>
+    <string name="login_title">ĐĂNG NHẬP</string>
+    <string name="register_title">ĐĂNG KÝ</string>
+    <string name="username_hint">Tên người dùng</string>
+    <string name="password_hint">Mật khẩu</string>
+    <string name="password_confirmation_hint">Nhập lại mật khẩu</string>
+    <string name="login_action">Đăng nhập</string>
+    <string name="open_register">Tạo tài khoản</string>
+    <string name="register_action">Đăng ký</string>
+    <string name="back_to_login">Quay lại đăng nhập</string>
+    <string name="logout">Đăng xuất</string>
+    <string name="auth_loading">Đang xử lý…</string>
+    <string name="auth_username_required">Vui lòng nhập tên người dùng</string>
+    <string name="auth_username_length">Tên người dùng phải có từ 3 đến 20 ký tự</string>
+    <string name="auth_username_characters">Chỉ dùng chữ không dấu, số và dấu gạch dưới</string>
+    <string name="auth_password_required">Vui lòng nhập mật khẩu</string>
+    <string name="auth_password_length">Mật khẩu phải có ít nhất 6 ký tự</string>
+    <string name="auth_password_mismatch">Mật khẩu nhập lại không khớp</string>
+    <string name="auth_duplicate_username">Tên người dùng đã tồn tại</string>
+    <string name="auth_invalid_credentials">Tên người dùng hoặc mật khẩu không đúng</string>
+    <string name="auth_generic_error">Không thể xử lý yêu cầu. Vui lòng thử lại</string>
+    <string name="auth_registered">Đăng ký thành công. Hãy đăng nhập</string>
+    <string name="current_user_format">Người chơi: %1$s</string>
 </resources>

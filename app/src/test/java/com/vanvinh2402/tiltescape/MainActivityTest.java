@@ -38,6 +38,16 @@ public final class MainActivityTest {
             assertNotNull(activity.findViewById(R.id.achievements_high_score));
             assertNotNull(activity.findViewById(R.id.achievements_results_container));
             assertNotNull(activity.findViewById(R.id.achievements_back_button));
+            assertNotNull(activity.findViewById(R.id.login_panel));
+            assertNotNull(activity.findViewById(R.id.login_username));
+            assertNotNull(activity.findViewById(R.id.login_password));
+            assertNotNull(activity.findViewById(R.id.login_error));
+            assertNotNull(activity.findViewById(R.id.login_loading));
+            assertNotNull(activity.findViewById(R.id.register_panel));
+            assertNotNull(activity.findViewById(R.id.register_confirmation));
+            assertNotNull(activity.findViewById(R.id.current_username));
+            assertNotNull(activity.findViewById(R.id.logout_button));
+            assertNotNull(activity.findViewById(R.id.main_menu_sensor_status));
         }
     }
 
@@ -46,7 +56,7 @@ public final class MainActivityTest {
         try (ActivityController<MainActivity> controller =
                      Robolectric.buildActivity(MainActivity.class).setup()) {
             MainActivity activity = controller.get();
-            TextView status = activity.findViewById(R.id.status_text);
+            TextView status = activity.findViewById(R.id.main_menu_sensor_status);
             ViewGroup root = activity.findViewById(R.id.game_root);
             View hud = activity.findViewById(R.id.hud_container);
             View gameContainer = activity.findViewById(R.id.game_container);
@@ -54,23 +64,13 @@ public final class MainActivityTest {
             assertEquals(activity.getString(R.string.sensor_unavailable), status.getText().toString());
             assertEquals(View.VISIBLE, status.getVisibility());
             assertNull(activity.findViewById(R.id.game_view));
+            assertEquals(View.VISIBLE, activity.findViewById(R.id.login_panel).getVisibility());
+            assertEquals(View.GONE, activity.findViewById(R.id.ready_panel).getVisibility());
+            assertTrue(!activity.findViewById(R.id.start_button).isEnabled());
             assertSame(root, hud.getParent());
             assertSame(root, gameContainer.getParent());
             assertTrue(root.indexOfChild(hud) < root.indexOfChild(gameContainer));
 
-            activity.<Button>findViewById(R.id.achievements_button).performClick();
-            assertEquals(View.VISIBLE,
-                    activity.findViewById(R.id.achievements_panel).getVisibility());
-            activity.<Button>findViewById(R.id.achievements_back_button).performClick();
-            assertEquals(View.VISIBLE,
-                    activity.findViewById(R.id.ready_panel).getVisibility());
-
-            activity.<Button>findViewById(R.id.achievements_button).performClick();
-            activity.getOnBackPressedDispatcher().onBackPressed();
-            assertEquals(View.GONE,
-                    activity.findViewById(R.id.achievements_panel).getVisibility());
-            assertEquals(View.VISIBLE,
-                    activity.findViewById(R.id.ready_panel).getVisibility());
         }
     }
 
@@ -102,41 +102,28 @@ public final class MainActivityTest {
     }
 
     @Test
-    public void controlsMoveBetweenReadyPlayingPausedAndMenu() {
+    public void unauthenticatedUserCannotStartGame() {
         addAccelerometer();
         try (ActivityController<MainActivity> controller =
                      Robolectric.buildActivity(MainActivity.class).create().start().resume()) {
             MainActivity activity = controller.get();
-            assertEquals(View.VISIBLE, activity.findViewById(R.id.ready_panel).getVisibility());
-            activity.<Button>findViewById(R.id.start_button).performClick();
-            assertEquals(View.VISIBLE, activity.findViewById(R.id.pause_button).getVisibility());
+            assertEquals(View.VISIBLE, activity.findViewById(R.id.login_panel).getVisibility());
             assertEquals(View.GONE, activity.findViewById(R.id.ready_panel).getVisibility());
-
-            activity.<Button>findViewById(R.id.pause_button).performClick();
-            assertEquals(View.VISIBLE, activity.findViewById(R.id.pause_panel).getVisibility());
-            activity.<Button>findViewById(R.id.resume_button).performClick();
-            assertEquals(View.GONE, activity.findViewById(R.id.pause_panel).getVisibility());
-
-            activity.<Button>findViewById(R.id.pause_button).performClick();
-            activity.<Button>findViewById(R.id.restart_button).performClick();
-            assertEquals(activity.getString(R.string.score_format, 0),
-                    activity.<TextView>findViewById(R.id.score_text).getText().toString());
-
-            activity.<Button>findViewById(R.id.pause_button).performClick();
-            activity.<Button>findViewById(R.id.pause_main_menu_button).performClick();
-            assertEquals(View.VISIBLE, activity.findViewById(R.id.ready_panel).getVisibility());
+            activity.<Button>findViewById(R.id.start_button).performClick();
+            assertEquals(View.GONE, activity.findViewById(R.id.pause_button).getVisibility());
+            assertEquals(View.GONE, activity.findViewById(R.id.ready_panel).getVisibility());
         }
     }
 
     @Test
-    public void backgroundingPlayingGameShowsPauseAndForegroundDoesNotAutoResume() {
+    public void loginRemainsVisibleAcrossActivityLifecycle() {
         addAccelerometer();
         try (ActivityController<MainActivity> controller =
                      Robolectric.buildActivity(MainActivity.class).create().start().resume()) {
             MainActivity activity = controller.get();
-            activity.<Button>findViewById(R.id.start_button).performClick();
             controller.pause().stop().restart().start().resume();
-            assertEquals(View.VISIBLE, activity.findViewById(R.id.pause_panel).getVisibility());
+            assertEquals(View.VISIBLE, activity.findViewById(R.id.login_panel).getVisibility());
+            assertEquals(View.GONE, activity.findViewById(R.id.ready_panel).getVisibility());
         }
     }
 

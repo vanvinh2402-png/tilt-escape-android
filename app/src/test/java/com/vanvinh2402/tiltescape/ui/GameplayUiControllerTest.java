@@ -25,6 +25,29 @@ import java.util.List;
 @RunWith(RobolectricTestRunner.class)
 public final class GameplayUiControllerTest {
     @Test
+    public void unauthenticatedGateHidesMenuAndRejectsStart() {
+        try (ActivityController<MainActivity> activityController =
+                     Robolectric.buildActivity(MainActivity.class).setup()) {
+            MainActivity activity = activityController.get();
+            GameEngine engine = new GameEngine();
+            GameView gameView = new GameView(activity, engine, () -> 0.0f);
+            GameplayUiController controller = new GameplayUiController(
+                    activity,
+                    engine,
+                    gameView,
+                    new GameResultRecorder(result -> { }, () -> 1_000L),
+                    () -> false,
+                    () -> false);
+            controller.bind();
+            controller.refresh(engine.snapshot());
+
+            assertEquals(View.GONE, activity.findViewById(R.id.ready_panel).getVisibility());
+            activity.<Button>findViewById(R.id.start_button).performClick();
+            assertEquals(GameState.READY, engine.getState());
+        }
+    }
+
+    @Test
     public void repeatedGameOverRefreshPersistsOnlyOnce() {
         try (ActivityController<MainActivity> activityController =
                      Robolectric.buildActivity(MainActivity.class).setup()) {

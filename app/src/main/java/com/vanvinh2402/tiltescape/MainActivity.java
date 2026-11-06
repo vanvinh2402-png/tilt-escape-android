@@ -1,6 +1,8 @@
 package com.vanvinh2402.tiltescape;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -15,9 +17,19 @@ import com.vanvinh2402.tiltescape.input.TiltSignalProcessor;
 import com.vanvinh2402.tiltescape.results.GameResultsCoordinator;
 import com.vanvinh2402.tiltescape.results.SQLiteGameResultRepository;
 import com.vanvinh2402.tiltescape.ui.AchievementsUiController;
+import com.vanvinh2402.tiltescape.ui.AuthUiController;
 import com.vanvinh2402.tiltescape.ui.GameView;
 import com.vanvinh2402.tiltescape.ui.GameplayUiController;
 import com.vanvinh2402.tiltescape.ui.SystemBarInsets;
+import com.vanvinh2402.tiltescape.auth.AccountCoordinator;
+import com.vanvinh2402.tiltescape.auth.ActiveSession;
+import com.vanvinh2402.tiltescape.auth.PasswordHasher;
+import com.vanvinh2402.tiltescape.auth.PasswordPolicy;
+import com.vanvinh2402.tiltescape.auth.SQLiteAccountRepository;
+import com.vanvinh2402.tiltescape.auth.SharedPreferencesSessionStore;
+import com.vanvinh2402.tiltescape.auth.UsernamePolicy;
+
+import java.util.concurrent.Executors;
 
 public final class MainActivity extends AppCompatActivity {
     private GameSessionController sessionController;
@@ -25,6 +37,7 @@ public final class MainActivity extends AppCompatActivity {
     private AchievementsUiController achievementsUiController;
     private GameResultsCoordinator gameResultsCoordinator;
     private GameView gameView;
+    private AuthUiController authUiController;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +46,24 @@ public final class MainActivity extends AppCompatActivity {
         SystemBarInsets.applyToPadding(findViewById(R.id.game_root));
 
         GameEngine engine = new GameEngine();
+        ActiveSession activeSession = new ActiveSession();
+        Handler mainHandler = new Handler(Looper.getMainLooper());
+        AccountCoordinator accountCoordinator = new AccountCoordinator(
+                new SQLiteAccountRepository(this),
+                new PasswordHasher(),
+                Executors.newSingleThreadExecutor(),
+                mainHandler::post,
+                System::currentTimeMillis);
+        authUiController = new AuthUiController(
+                this,
+                accountCoordinator,
+                new SharedPreferencesSessionStore(this),
+                activeSession,
+                new UsernamePolicy(),
+                new PasswordPolicy());
+        authUiController.bind();
+        authUiController.restoreSession();
+
         gameResultsCoordinator = GameResultsCoordinator.create(
                 new SQLiteGameResultRepository(this));
         achievementsUiController = new AchievementsUiController(
@@ -42,6 +73,7 @@ public final class MainActivity extends AppCompatActivity {
             @Override
             public void handleOnBackPressed() {
                 if (achievementsUiController.handleBack()) return;
+                if (authUiController.handleBack()) return;
                 setEnabled(false);
                 try {
                     getOnBackPressedDispatcher().onBackPressed();
@@ -51,12 +83,13 @@ public final class MainActivity extends AppCompatActivity {
             }
         });
 
-        TextView statusText = findViewById(R.id.status_text);
         AccelerometerTiltInput tiltInput = new AccelerometerTiltInput(
                 this, new TiltSignalProcessor());
         if (!tiltInput.isAvailable()) {
-            statusText.setText(R.string.sensor_unavailable);
-            statusText.setVisibility(View.VISIBLE);
+            TextView sensorStatus = findViewById(R.id.main_menu_sensor_status);
+            sensorStatus.setText(R.string.sensor_unavailable);
+            sensorStatus.setVisibility(View.VISIBLE);
+            findViewById(R.id.start_button).setEnabled(false);
             return;
         }
 
@@ -70,7 +103,8 @@ public final class MainActivity extends AppCompatActivity {
                 gameResultsCoordinator::save, System::currentTimeMillis);
         gameplayUiController = new GameplayUiController(
                 this, engine, gameView, resultRecorder,
-                achievementsUiController::isVisible);
+                achievementsUiController::isVisible,
+                authUiController::isMainMenuAllowed);
         gameplayUiController.bind();
         gameView.setSnapshotListener(gameplayUiController::refresh);
         gameView.refreshSnapshot();
@@ -102,6 +136,10 @@ public final class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        if (authUiController != null) {
+            authUiController.close();
+            authUiController = null;
+        }
         if (gameResultsCoordinator != null) {
             gameResultsCoordinator.close();
             gameResultsCoordinator = null;

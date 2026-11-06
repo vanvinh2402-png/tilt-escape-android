@@ -19,6 +19,7 @@ public final class GameplayUiController {
     private final GameView gameView;
     private final GameResultRecorder resultRecorder;
     private final BooleanSupplier achievementsVisible;
+    private final BooleanSupplier mainMenuAllowed;
     private final TextView scoreText;
     private final TextView finalScoreText;
     private final View stateOverlay;
@@ -31,17 +32,24 @@ public final class GameplayUiController {
     public GameplayUiController(Activity activity, GameEngine engine, GameView gameView) {
         this(activity, engine, gameView,
                 new GameResultRecorder(result -> { }, System::currentTimeMillis),
-                () -> false);
+                () -> false, () -> true);
     }
 
     public GameplayUiController(Activity activity, GameEngine engine, GameView gameView,
             GameResultRecorder resultRecorder, BooleanSupplier achievementsVisible) {
+        this(activity, engine, gameView, resultRecorder, achievementsVisible, () -> true);
+    }
+
+    public GameplayUiController(Activity activity, GameEngine engine, GameView gameView,
+            GameResultRecorder resultRecorder, BooleanSupplier achievementsVisible,
+            BooleanSupplier mainMenuAllowed) {
         this.activity = activity;
         this.engine = engine;
         this.gameView = gameView;
         this.resultRecorder = Objects.requireNonNull(resultRecorder, "resultRecorder");
         this.achievementsVisible = Objects.requireNonNull(
                 achievementsVisible, "achievementsVisible");
+        this.mainMenuAllowed = Objects.requireNonNull(mainMenuAllowed, "mainMenuAllowed");
         scoreText = activity.findViewById(R.id.score_text);
         finalScoreText = activity.findViewById(R.id.final_score_text);
         stateOverlay = activity.findViewById(R.id.state_overlay);
@@ -71,6 +79,7 @@ public final class GameplayUiController {
         finalScoreText.setText(activity.getString(R.string.final_score_format, snapshot.getScore()));
         readyPanel.setVisibility(
                 state == GameState.READY && !achievementsVisible.getAsBoolean()
+                        && mainMenuAllowed.getAsBoolean()
                         ? View.VISIBLE : View.GONE);
         pausePanel.setVisibility(state == GameState.PAUSED ? View.VISIBLE : View.GONE);
         gameOverPanel.setVisibility(state == GameState.GAME_OVER ? View.VISIBLE : View.GONE);
@@ -79,7 +88,7 @@ public final class GameplayUiController {
     }
 
     private void start() {
-        if (engine.getState() != GameState.READY) return;
+        if (engine.getState() != GameState.READY || !mainMenuAllowed.getAsBoolean()) return;
         engine.startNewRun();
         gameView.start();
         gameView.refreshSnapshot();
