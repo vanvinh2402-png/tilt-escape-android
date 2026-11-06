@@ -57,6 +57,18 @@ Verified manually:
 
 `android:windowLightNavigationBar` is defined only in `values-v27/themes.xml`. API 24–26 use the dark base theme and explicit dark navigation-bar color, while API 27+ explicitly keeps light navigation icons.
 
+## Signed release verification
+
+The signed release was rebuilt with:
+
+```powershell
+.\gradlew.bat --no-daemon clean testDebugUnitTest assembleRelease lintDebug
+```
+
+Result: **BUILD SUCCESSFUL** in 54 seconds; 138 tests passed with 0 failures and Android Lint reported 0 errors.
+
+`apksigner verify --verbose --print-certs` confirmed one RSA 4096 signer using APK Signature Scheme v2. A clean install on `emulator-5554` succeeded after removing the debug-signed package. The release opened at Login with an empty local database and produced no fatal exception, ANR or SQLite exception.
+
 ## Scope preserved
 
 No account, SQLite, score, tilt, collision or game-state logic changed. No external UI library or image asset was added.

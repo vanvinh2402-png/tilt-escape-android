@@ -2,6 +2,8 @@
 
 Release signing and signed APK instructions: [docs/release-signing.md](docs/release-signing.md).
 
+Project handover package, completed requirements, test cases and known gaps: [docs/handover.md](docs/handover.md).
+
 ## Giao diện Neon Focus
 
 Ứng dụng dùng giao diện Neon Focus thống nhất cho Đăng nhập, Đăng ký, menu chính, Tạm dừng, Kết thúc và Thành tích. Form được đặt trong card tối có độ tương phản cao; ô nhập có màu chữ/hint rõ ràng, viền focus tím; nút chính dùng gradient tím–xanh và điểm nhấn xanh ngọc.
@@ -61,7 +63,7 @@ APK debug: `app/build/outputs/apk/debug/app-debug.apk`.
 
 ## Giới hạn hiện tại
 
-Chưa có đăng nhập, tài khoản, bảng xếp hạng trực tuyến, âm thanh, đồ họa hoàn thiện hoặc dịch vụ trực tuyến. Thành tích chỉ lưu cục bộ trên thiết bị và sẽ mất khi xóa dữ liệu hoặc gỡ ứng dụng. Chiều và cảm giác nghiêng cuối cùng vẫn cần xác nhận trên thiết bị Android thật.
+Chưa có khôi phục/đổi mật khẩu, màn How to Play riêng, Settings, bảng xếp hạng nhiều người chơi, âm thanh hoặc dịch vụ trực tuyến. Thành tích chỉ lưu cục bộ theo từng tài khoản trên thiết bị và sẽ mất khi xóa dữ liệu hoặc gỡ ứng dụng. Chiều và cảm giác nghiêng cuối cùng vẫn cần xác nhận trên thiết bị Android thật.
 
 ## Cấu hình dự án
 
