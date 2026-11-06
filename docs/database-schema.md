@@ -1,58 +1,89 @@
 # SQLite database schema
 
-Tilt Escape stores completed local runs in Android's app-private SQLite storage.
+Tilt Escape stores local accounts and completed runs in Android app-private SQLite storage.
 
 ## Database identity
 
 - File: `tilt_escape.db`
-- Schema version: `1`
-- Owner: `TiltEscapeDatabaseHelper`
-- Retention: all completed runs remain until the user clears app data or uninstalls the app.
+- Schema version: `2`
+- Helper: `com.vanvinh2402.tiltescape.data.TiltEscapeDatabaseHelper`
+- Foreign-key enforcement: enabled in `onConfigure`
+- Retention: until app data is cleared or the app is uninstalled
 
-Version 1 has no migration from an older application schema. Future changes must increment the database version and implement an explicit, non-destructive migration in `onUpgrade`; player history must not be dropped as an upgrade shortcut.
-
-## Table and indexes
+## Users
 
 ```sql
-CREATE TABLE IF NOT EXISTS game_results (
+CREATE TABLE users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT NOT NULL,
+    username_normalized TEXT NOT NULL,
+    password_hash BLOB NOT NULL,
+    password_salt BLOB NOT NULL,
+    password_algorithm TEXT NOT NULL,
+    password_iterations INTEGER NOT NULL CHECK(password_iterations > 0),
+    created_at_epoch_millis INTEGER NOT NULL CHECK(created_at_epoch_millis >= 0)
+);
+
+CREATE UNIQUE INDEX idx_users_username_normalized
+ON users(username_normalized);
+```
+
+`username_normalized` is the `Locale.ROOT` lowercase lookup key, so case variants cannot create duplicate accounts. Password metadata records the PBKDF2 algorithm, iteration count, random salt and derived bytes; plaintext passwords are never stored.
+
+## Game results
+
+```sql
+CREATE TABLE game_results (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     score INTEGER NOT NULL CHECK(score >= 0),
     survival_millis INTEGER NOT NULL CHECK(survival_millis >= 0),
-    played_at_epoch_millis INTEGER NOT NULL CHECK(played_at_epoch_millis >= 0)
+    played_at_epoch_millis INTEGER NOT NULL CHECK(played_at_epoch_millis >= 0),
+    user_id INTEGER REFERENCES users(id)
 );
 
-CREATE INDEX IF NOT EXISTS idx_game_results_played_at
+CREATE INDEX idx_game_results_played_at
 ON game_results(played_at_epoch_millis DESC, id DESC);
 
-CREATE INDEX IF NOT EXISTS idx_game_results_score
+CREATE INDEX idx_game_results_score
 ON game_results(score DESC);
+
+CREATE INDEX idx_game_results_user_played_at
+ON game_results(user_id, played_at_epoch_millis DESC, id DESC);
 ```
 
-| Column | Unit | Meaning |
-| --- | --- | --- |
-| `id` | integer | Auto-incremented local identifier; also provides deterministic ordering when timestamps tie. |
-| `score` | obstacle count | Number of obstacles safely passed during the completed run. |
-| `survival_millis` | milliseconds | Engine survival duration when the run reached Game Over. |
-| `played_at_epoch_millis` | UTC epoch milliseconds | Device time captured when Game Over was first observed. Display formatting uses the device locale and timezone. |
+`user_id` is required for all new application writes. It remains nullable only so version-1 rows can survive as legacy Guest history.
 
-Zero-point runs are valid and are retained. A run is inserted exactly once on the first observed transition from Playing to Game Over; Pause, Resume, Ready, app backgrounding, repeated Game Over refreshes, and opening Thành tích do not insert rows.
-
-## Read queries
-
-All-time high score:
+Account high score:
 
 ```sql
 SELECT COALESCE(MAX(score), 0) AS high_score
-FROM game_results;
+FROM game_results
+WHERE user_id = ?;
 ```
 
-Ten most recent runs:
+Account recent history:
 
 ```sql
 SELECT id, score, survival_millis, played_at_epoch_millis
 FROM game_results
+WHERE user_id = ?
 ORDER BY played_at_epoch_millis DESC, id DESC
-LIMIT 10;
+LIMIT ?;
 ```
 
-SQLite operations are serialized on one background executor. This guarantees that opening Thành tích immediately after Game Over observes the insert queued immediately before its queries. Database failures are logged and converted into a recoverable UI error; they do not stop gameplay.
+These queries exclude other accounts and all legacy Guest rows.
+
+## Version 1 to version 2 migration
+
+The upgrade is executed inside the transaction managed by `SQLiteOpenHelper`:
+
+1. Create `users` and its unique normalized-username index.
+2. Add nullable `game_results.user_id` referencing `users(id)`.
+3. Create `idx_game_results_user_played_at`.
+4. Preserve every existing result unchanged with `user_id = NULL`.
+
+The migration never drops or recreates `game_results`. Automated Robolectric migration tests construct a real version-1 database, insert representative rows and verify values, indexes, foreign keys and null legacy ownership after opening version 2.
+
+## Session storage
+
+The active session is separate from SQLite credentials. Private SharedPreferences file `tilt_escape_session` stores only the positive numeric `active_user_id`. Logout removes this value without deleting the account or results.

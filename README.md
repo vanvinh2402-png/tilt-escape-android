@@ -1,5 +1,18 @@
 # TILT ESCAPE
 
+## Tài khoản local
+
+Ứng dụng hiện yêu cầu tài khoản cục bộ trước khi chơi:
+
+1. Chọn **Tạo tài khoản**, nhập tên người dùng 3–20 ký tự không dấu (chữ, số hoặc dấu gạch dưới) và mật khẩu tối thiểu 6 ký tự.
+2. Sau khi đăng ký thành công, đăng nhập bằng tài khoản vừa tạo.
+3. Phiên đăng nhập được giữ khi đóng/mở lại ứng dụng. Chọn **Đăng xuất** tại Màn hình chính để kết thúc phiên.
+4. Điểm cao nhất và 10 lượt gần nhất được tách riêng theo từng tài khoản.
+
+Mật khẩu không được lưu dạng rõ; ứng dụng lưu PBKDF2 hash với salt riêng trong SQLite. Tài khoản, phiên và thành tích chỉ tồn tại trên thiết bị hiện tại, không đồng bộ qua mạng.
+
+Nếu thiết bị không có cảm biến gia tốc, người dùng vẫn có thể đăng ký, đăng nhập, đăng xuất và xem Thành tích; nút Bắt đầu sẽ bị vô hiệu hóa.
+
 TILT ESCAPE là game Android màn hình dọc: người chơi nghiêng điện thoại sang trái hoặc phải để né các chướng ngại vật đang rơi.
 
 ## Trạng thái hiện tại
@@ -49,3 +62,9 @@ Chưa có đăng nhập, tài khoản, bảng xếp hạng trực tuyến, âm t
 - Minimum SDK: 24
 - Target/Compile SDK: 35
 - Application ID: `com.vanvinh2402.tiltescape`
+
+## Chức năng đã hoàn thành và giới hạn
+
+Đã hoàn thành tài khoản local, đăng ký, đăng nhập, khôi phục phiên, đăng xuất, SQLite v2, migration dữ liệu cũ và thành tích tách theo tài khoản.
+
+Chưa có khôi phục mật khẩu, đổi mật khẩu, xóa tài khoản, Leaderboard/bảng xếp hạng trực tuyến hoặc đồng bộ nhiều thiết bị. Xóa dữ liệu ứng dụng hay gỡ cài đặt sẽ xóa tài khoản và thành tích local.
