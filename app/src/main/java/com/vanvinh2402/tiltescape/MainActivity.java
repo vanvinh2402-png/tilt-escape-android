@@ -14,6 +14,7 @@ import com.vanvinh2402.tiltescape.game.GameEngine;
 import com.vanvinh2402.tiltescape.game.GameResultRecorder;
 import com.vanvinh2402.tiltescape.input.AccelerometerTiltInput;
 import com.vanvinh2402.tiltescape.input.TiltSignalProcessor;
+import com.vanvinh2402.tiltescape.input.TiltSettingsStore;
 import com.vanvinh2402.tiltescape.results.GameResultsCoordinator;
 import com.vanvinh2402.tiltescape.results.SQLiteGameResultRepository;
 import com.vanvinh2402.tiltescape.ui.AchievementsUiController;
@@ -22,6 +23,7 @@ import com.vanvinh2402.tiltescape.ui.GameView;
 import com.vanvinh2402.tiltescape.ui.GameplayUiController;
 import com.vanvinh2402.tiltescape.ui.HowToPlayUiController;
 import com.vanvinh2402.tiltescape.ui.SystemBarInsets;
+import com.vanvinh2402.tiltescape.ui.SettingsUiController;
 import com.vanvinh2402.tiltescape.auth.AccountCoordinator;
 import com.vanvinh2402.tiltescape.auth.ActiveSession;
 import com.vanvinh2402.tiltescape.auth.PasswordHasher;
@@ -37,6 +39,7 @@ public final class MainActivity extends AppCompatActivity {
     private GameplayUiController gameplayUiController;
     private AchievementsUiController achievementsUiController;
     private HowToPlayUiController howToPlayUiController;
+    private SettingsUiController settingsUiController;
     private GameResultsCoordinator gameResultsCoordinator;
     private GameView gameView;
     private AuthUiController authUiController;
@@ -74,6 +77,7 @@ public final class MainActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
+                if (settingsUiController != null && settingsUiController.handleBack()) return;
                 if (howToPlayUiController != null && howToPlayUiController.handleBack()) return;
                 if (achievementsUiController.handleBack()) return;
                 if (authUiController.handleBack()) return;
@@ -85,14 +89,21 @@ public final class MainActivity extends AppCompatActivity {
                 }
             }
         });
-        AccelerometerTiltInput tiltInput = new AccelerometerTiltInput(
-                this, new TiltSignalProcessor());
+        TiltSignalProcessor tiltProcessor = new TiltSignalProcessor();
+        TiltSettingsStore tiltSettingsStore = new TiltSettingsStore(this);
+        tiltProcessor.setSensitivityMultiplier(tiltSettingsStore.getSensitivity().getMultiplier());
+        settingsUiController = new SettingsUiController(this, engine, authUiController::isMainMenuAllowed,
+                tiltSettingsStore, sensitivity ->
+                tiltProcessor.setSensitivityMultiplier(sensitivity.getMultiplier()));
+        settingsUiController.bind();
+        AccelerometerTiltInput tiltInput = new AccelerometerTiltInput(this, tiltProcessor);
         if (!tiltInput.isAvailable()) {
             TextView sensorStatus = findViewById(R.id.main_menu_sensor_status);
             sensorStatus.setText(R.string.sensor_unavailable);
             sensorStatus.setVisibility(View.VISIBLE);
             findViewById(R.id.start_button).setEnabled(false);
             findViewById(R.id.how_to_play_button).setVisibility(View.GONE);
+            findViewById(R.id.settings_button).setVisibility(View.GONE);
             return;
         }
 

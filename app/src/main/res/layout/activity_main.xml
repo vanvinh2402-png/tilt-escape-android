@@ -332,6 +332,14 @@
                     android:text="@string/how_to_play" />
 
                 <Button
+                    android:id="@+id/settings_button"
+                    style="@style/Widget.TiltEscape.Button.Secondary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/settings" />
+
+                <Button
                     android:id="@+id/achievements_button"
                     style="@style/Widget.TiltEscape.Button.Secondary"
                     android:layout_width="match_parent"
@@ -413,6 +421,85 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="8dp"
                             android:text="@string/how_to_play_back" />
+                    </LinearLayout>
+                </LinearLayout>
+            </ScrollView>
+
+            <ScrollView
+                android:id="@+id/settings_panel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_app_gradient"
+                android:clipToPadding="false"
+                android:fillViewport="true"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="@dimen/screen_padding">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_neon_card"
+                        android:orientation="vertical"
+                        android:padding="@dimen/card_padding">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/settings_title"
+                            android:textAppearance="@style/TextAppearance.TiltEscape.Title" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:text="@string/settings_sensitivity_title"
+                            android:textColor="@color/on_background"
+                            android:textStyle="bold" />
+
+                        <RadioGroup
+                            android:id="@+id/sensitivity_group"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp">
+
+                            <RadioButton
+                                android:id="@+id/sensitivity_low"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:minHeight="48dp"
+                                android:text="@string/sensitivity_low"
+                                android:textColor="@color/on_background" />
+
+                            <RadioButton
+                                android:id="@+id/sensitivity_medium"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:minHeight="48dp"
+                                android:text="@string/sensitivity_medium"
+                                android:textColor="@color/on_background" />
+
+                            <RadioButton
+                                android:id="@+id/sensitivity_high"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:minHeight="48dp"
+                                android:text="@string/sensitivity_high"
+                                android:textColor="@color/on_background" />
+                        </RadioGroup>
+
+                        <Button
+                            android:id="@+id/settings_back_button"
+                            style="@style/Widget.TiltEscape.Button.Secondary"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:text="@string/settings_back" />
                     </LinearLayout>
                 </LinearLayout>
             </ScrollView>

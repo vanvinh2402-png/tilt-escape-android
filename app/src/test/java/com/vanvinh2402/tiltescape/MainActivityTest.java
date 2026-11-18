@@ -81,6 +81,10 @@ public final class MainActivityTest {
             assertEquals(View.GONE, activity.findViewById(R.id.ready_panel).getVisibility());
             assertTrue(!activity.findViewById(R.id.start_button).isEnabled());
             assertEquals(View.GONE, activity.findViewById(R.id.how_to_play_button).getVisibility());
+            int settingsButtonId = activity.getResources().getIdentifier(
+                    "settings_button", "id", activity.getPackageName());
+            assertTrue("settings_button must exist", settingsButtonId != 0);
+            assertEquals(View.GONE, activity.findViewById(settingsButtonId).getVisibility());
             assertSame(root, hud.getParent());
             assertSame(root, gameContainer.getParent());
             assertTrue(root.indexOfChild(hud) < root.indexOfChild(gameContainer));
@@ -289,6 +293,34 @@ public final class MainActivityTest {
             assertTrue(panel instanceof ScrollView);
             assertTrue(isDescendantOf(startButton, panel));
             assertTrue(isDescendantOf(backButton, panel));
+        }
+    }
+
+    @Test
+    public void settingsPanelKeepsSensitivityControlsReachable() {
+        try (ActivityController<MainActivity> controller =
+                     Robolectric.buildActivity(MainActivity.class).setup()) {
+            MainActivity activity = controller.get();
+            int panelId = activity.getResources().getIdentifier(
+                    "settings_panel", "id", activity.getPackageName());
+            int menuButtonId = activity.getResources().getIdentifier(
+                    "settings_button", "id", activity.getPackageName());
+            int lowId = activity.getResources().getIdentifier(
+                    "sensitivity_low", "id", activity.getPackageName());
+            int mediumId = activity.getResources().getIdentifier(
+                    "sensitivity_medium", "id", activity.getPackageName());
+            int highId = activity.getResources().getIdentifier(
+                    "sensitivity_high", "id", activity.getPackageName());
+            int backId = activity.getResources().getIdentifier(
+                    "settings_back_button", "id", activity.getPackageName());
+            assertTrue(panelId != 0 && menuButtonId != 0 && lowId != 0
+                    && mediumId != 0 && highId != 0 && backId != 0);
+            View panel = activity.findViewById(panelId);
+            assertTrue(panel instanceof ScrollView);
+            assertTrue(isDescendantOf(activity.findViewById(lowId), panel));
+            assertTrue(isDescendantOf(activity.findViewById(mediumId), panel));
+            assertTrue(isDescendantOf(activity.findViewById(highId), panel));
+            assertTrue(isDescendantOf(activity.findViewById(backId), panel));
         }
     }
 

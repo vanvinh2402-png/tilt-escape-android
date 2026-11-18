@@ -16,6 +16,13 @@
     <string name="how_to_play_game_over">Va chạm với chướng ngại vật sẽ kết thúc lượt chơi.</string>
     <string name="how_to_play_start">Bắt đầu chơi</string>
     <string name="how_to_play_back">Quay lại</string>
+    <string name="settings">Cài đặt</string>
+    <string name="settings_title">CÀI ĐẶT</string>
+    <string name="settings_sensitivity_title">Độ nhạy nghiêng</string>
+    <string name="sensitivity_low">Thấp</string>
+    <string name="sensitivity_medium">Trung bình</string>
+    <string name="sensitivity_high">Cao</string>
+    <string name="settings_back">Quay lại</string>
     <string name="paused">Đã tạm dừng</string>
     <string name="resume">Tiếp tục</string>
     <string name="restart">Chơi lại</string>
