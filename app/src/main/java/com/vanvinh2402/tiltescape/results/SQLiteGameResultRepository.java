@@ -78,6 +78,25 @@ public final class SQLiteGameResultRepository implements GameResultRepository {
     }
 
     @Override
+    public List<LeaderboardEntry> getLeaderboard(int limit) {
+        if (limit <= 0) throw new IllegalArgumentException("limit must be positive");
+        List<LeaderboardEntry> entries = new ArrayList<>();
+        String sql = "SELECT users.username AS username, MAX(game_results.score) AS high_score "
+                + "FROM game_results INNER JOIN users ON users.id = game_results.user_id "
+                + "GROUP BY users.id, users.username, users.username_normalized "
+                + "ORDER BY high_score DESC, users.username_normalized ASC LIMIT ?";
+        try (Cursor cursor = databaseHelper.getReadableDatabase().rawQuery(
+                sql, new String[] {Integer.toString(limit)})) {
+            int usernameIndex = cursor.getColumnIndexOrThrow("username");
+            int scoreIndex = cursor.getColumnIndexOrThrow("high_score");
+            while (cursor.moveToNext()) {
+                entries.add(new LeaderboardEntry(cursor.getString(usernameIndex), cursor.getInt(scoreIndex)));
+            }
+        }
+        return Collections.unmodifiableList(entries);
+    }
+
+    @Override
     public void close() {
         databaseHelper.close();
     }

@@ -156,6 +156,28 @@ public final class SQLiteGameResultRepositoryTest {
     }
 
     @Test
+    public void leaderboardUsesEachAccountHighScoreInDescendingOrder() {
+        long alpha = accountRepository.insert("Alpha", "alpha",
+                new PasswordHash("PBKDF2WithHmacSHA256", 1,
+                        new byte[] {3}, new byte[] {4}), 1L);
+        long bravo = accountRepository.insert("Bravo", "bravo",
+                new PasswordHash("PBKDF2WithHmacSHA256", 1,
+                        new byte[] {5}, new byte[] {6}), 2L);
+        repository.insert(alpha, new GameResult(0L, 4, 1L, 1L));
+        repository.insert(alpha, new GameResult(0L, 12, 1L, 2L));
+        repository.insert(bravo, new GameResult(0L, 9, 1L, 3L));
+
+        List<LeaderboardEntry> leaderboard = repository.getLeaderboard(10);
+
+        assertEquals(2, leaderboard.size());
+        assertEquals("Alpha", leaderboard.get(0).getUsername());
+        assertEquals(12, leaderboard.get(0).getScore());
+        assertEquals("Bravo", leaderboard.get(1).getUsername());
+        assertEquals(9, leaderboard.get(1).getScore());
+        assertIllegalArgument(() -> repository.getLeaderboard(0));
+    }
+
+    @Test
     public void databaseConstraintsRejectNegativeValues() {
         TiltEscapeDatabaseHelper helper = new TiltEscapeDatabaseHelper(context);
         ContentValues values = new ContentValues();

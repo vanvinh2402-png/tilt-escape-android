@@ -9,6 +9,8 @@ public interface GameResultRepository extends AutoCloseable {
 
     List<GameResult> getRecent(long userId, int limit);
 
+    List<LeaderboardEntry> getLeaderboard(int limit);
+
     @Override
     void close();
 }
