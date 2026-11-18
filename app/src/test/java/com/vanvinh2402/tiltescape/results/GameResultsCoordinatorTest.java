@@ -225,6 +225,11 @@ public final class GameResultsCoordinatorTest {
         }
 
         @Override
+        public List<LeaderboardEntry> getLeaderboard(int limit) {
+            return Collections.emptyList();
+        }
+
+        @Override
         public void close() {
             closeCount++;
         }
