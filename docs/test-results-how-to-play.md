@@ -20,8 +20,8 @@ Kết quả: **BUILD SUCCESSFUL**.
 - Android Lint: 0 errors (warnings không chặn build)
 - Debug APK: `app/build/outputs/apk/debug/app-debug.apk`
 - Release APK đã ký: `app/build/outputs/apk/release/app-release.apk`
-- Release APK size: 2,556,564 bytes
-- SHA-256: `414F799801D570120455868C9A4850FD92C7527CFA829B84C8C2639C337B9BA0`
+- Release APK size: 2,556,480 bytes
+- SHA-256: `4B329E7C584FDEC44E2FBA809615EDE44998810E5E18E93DAB68474EABC71810`
 - `apksigner verify --verbose`: một signer, APK Signature Scheme v2 hợp lệ.
 
 Các test mới kiểm tra:
@@ -30,6 +30,7 @@ Các test mới kiểm tra:
 - Hướng dẫn chỉ mở khi menu được phép ở trạng thái `READY`.
 - Mở hướng dẫn ẩn menu; Quay lại hoặc phím Back trả về menu.
 - Bắt đầu chơi gọi lại luồng Start có sẵn và đóng overlay.
+- Thiết bị thiếu accelerometer ẩn action Hướng dẫn chơi, tránh một nút không có phản hồi.
 
 ## Kiểm tra Pixel 7
 

@@ -140,8 +140,8 @@ Lần cài sạch release cuối ngày 2026-11-06 trên `emulator-5554` thành c
 ## Thông tin APK release
 
 - Tệp: `app/build/outputs/apk/release/app-release.apk`
-- Kích thước: 2,556,564 byte
-- SHA-256: `414F799801D570120455868C9A4850FD92C7527CFA829B84C8C2639C337B9BA0`
+- Kích thước: 2,556,480 byte
+- SHA-256: `4B329E7C584FDEC44E2FBA809615EDE44998810E5E18E93DAB68474EABC71810`
 - Chữ ký: APK Signature Scheme v2, RSA 4096
 - Certificate SHA-256: `84c6febb235863b8a9cf271ed88322c85616c013158fd7c22963b04feaf13bf0`
 
