@@ -1,6 +1,6 @@
 # Hồ sơ bàn giao Tilt Escape 1.0
 
-Tilt Escape hiện là ứng dụng Android Java có thể build, cài đặt và chơi được bằng cảm biến gia tốc. Gameplay cốt lõi, tài khoản local, SQLite, điểm cá nhân, giao diện Neon Focus và màn Hướng dẫn chơi đã hoàn thành. So với SRS phiên bản 1.0, sản phẩm chưa hoàn thành Settings và Leaderboard; các phần này được liệt kê rõ để nghiệm thu đúng phạm vi thực tế.
+Tilt Escape hiện là ứng dụng Android Java có thể build, cài đặt và chơi được bằng cảm biến gia tốc. Gameplay cốt lõi, tài khoản local, SQLite, điểm cá nhân, giao diện Neon Focus, Hướng dẫn chơi và Cài đặt độ nhạy nghiêng đã hoàn thành. So với SRS phiên bản 1.0, sản phẩm chưa hoàn thành Leaderboard; các phần này được liệt kê rõ để nghiệm thu đúng phạm vi thực tế.
 
 ## Thành phần bàn giao
 
@@ -33,11 +33,12 @@ Tilt Escape hiện là ứng dụng Android Java có thể build, cài đặt v�
 |---|---:|---|---|
 | Đăng ký | 2 | R01–R05 | Hoàn thành kiểm tra dữ liệu, chống trùng tên, PBKDF2 và lưu SQLite |
 | Đăng nhập | 1 | R06–R09 | Hoàn thành xác thực, thông báo lỗi và phiên đăng nhập local |
-| Main Menu | 3 | R10 | Hoàn thành thông tin người chơi, Start, Hướng dẫn chơi, Thành tích và Logout; chưa có Settings |
+| Main Menu | 3 | R10 | Hoàn thành thông tin người chơi, Start, Hướng dẫn chơi, Cài đặt, Thành tích và Logout |
 | Hướng dẫn chơi | 4 | R59 | Hoàn thành màn riêng hướng dẫn nghiêng máy, né vật cản để cộng điểm, va chạm kết thúc; có Bắt đầu chơi, Quay lại và phím Back |
+| Cài đặt | 8 | R60–R61 | Hoàn thành ba mức độ nhạy nghiêng, lưu local và áp dụng ngay; có Quay lại và phím Back |
 | Khởi động game | 3, 5 | R11–R13 | Hoàn thành reset ván, điểm 0, khu vực chơi và HUD |
 | Cảm biến | 5 | R14–R16 | Hoàn thành phát hiện accelerometer, đọc mẫu và điều khiển trái/phải |
-| Độ nhạy | 5 | R17 | Có lọc, dead zone và giới hạn di chuyển; chưa có tùy chỉnh từ Settings |
+| Độ nhạy | 5 | R17 | Có lọc, dead zone, giới hạn di chuyển và ba mức tùy chỉnh từ Settings |
 | Chướng ngại vật | 5 | R18–R20 | Hoàn thành sinh ở nhiều lane, chuyển động, loại bỏ và sinh lượt mới |
 | Điểm số | 5 | R21–R24 | Điểm bắt đầu từ 0, cộng 1 cho mỗi vật né được, tăng độ khó theo thời gian và lưu điểm cao cá nhân |
 | Va chạm | 5, 7 | R25–R28 | Hoàn thành va chạm, dừng game, điểm cuối và Game Over |
@@ -53,8 +54,6 @@ R22 trong SRS mô tả tăng điểm theo thời gian sống sót. Theo quyết 
 
 | Nội dung | Frame hoặc mã yêu cầu | Trạng thái thực tế |
 |---|---|---|
-| Màn Settings | Frame 8, R60 | Chưa có |
-| Lưu và áp dụng mức Tilt Sensitivity do người dùng chọn | R61 | Chưa có; ứng dụng dùng thông số cố định đã cân chỉnh |
 | Leaderboard nhiều người chơi | Frame 9, R62–R63 | Chưa có |
 | Điểm theo tài khoản | R64 | Đã lưu và truy xuất theo tài khoản, nhưng chỉ hiển thị Thành tích cá nhân |
 | Trạng thái Leaderboard rỗng/ít dữ liệu | R65 | Thành tích cá nhân có trạng thái rỗng; chưa có Leaderboard để nghiệm thu đầy đủ |
@@ -131,7 +130,8 @@ Trên Android Emulator, mở Extended Controls, chọn Virtual sensors rồi Dev
 | TC12 | Restart/Play Again | Tạo ván mới và đưa điểm về 0 | Đạt |
 | TC13 | Mở Thành tích sau Game Over | Lưu điểm cao và lịch sử theo tài khoản | Đạt |
 | TC14 | Force-stop và mở lại | SQLite và phiên còn tồn tại | Đạt |
-| TC15 | Chạy unit test và Android Lint | Không có test thất bại hoặc lint error | Đạt: 141 test, 0 lỗi; lint 0 error |
+| TC15 | Chạy unit test và Android Lint | Không có test thất bại hoặc lint error | Đạt: 145 test, 0 lỗi; lint 0 error |
+| TC18 | Đổi độ nhạy nghiêng | Thấp/Trung bình/Cao được lưu và áp dụng | Đạt tự động; kiểm tra Pixel 7 chờ ADB |
 | TC16 | Xác minh chữ ký release | APK xác minh bằng apksigner | Đạt: v2, một signer |
 | TC17 | Mở Hướng dẫn chơi trên Pixel 7 | Mở, Quay lại và Bắt đầu chơi đúng luồng | Chờ kiểm tra: giả lập chưa kết nối ADB vào ngày 2026-11-18 |
 
@@ -140,8 +140,8 @@ Lần cài sạch release cuối ngày 2026-11-06 trên `emulator-5554` thành c
 ## Thông tin APK release
 
 - Tệp: `app/build/outputs/apk/release/app-release.apk`
-- Kích thước: 2,556,480 byte
-- SHA-256: `4B329E7C584FDEC44E2FBA809615EDE44998810E5E18E93DAB68474EABC71810`
+- Kích thước: 2,562,412 byte
+- SHA-256: `A54649F4AF6067AD0503A73EFB84346DF5E0AA8DDC9FF1F4756BB7D42613DF6A`
 - Chữ ký: APK Signature Scheme v2, RSA 4096
 - Certificate SHA-256: `84c6febb235863b8a9cf271ed88322c85616c013158fd7c22963b04feaf13bf0`
 
