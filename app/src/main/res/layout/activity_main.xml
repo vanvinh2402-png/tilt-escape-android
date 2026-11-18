@@ -582,6 +582,16 @@
                     android:textColor="@color/on_background"
                     android:textSize="20sp" />
 
+                <TextView
+                    android:id="@+id/new_record_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/new_record"
+                    android:textColor="@color/score_accent"
+                    android:textStyle="bold"
+                    android:visibility="gone" />
+
                 <Button
                     android:id="@+id/play_again_button"
                     style="@style/Widget.TiltEscape.Button.Primary"

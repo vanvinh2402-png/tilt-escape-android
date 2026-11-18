@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.AbstractExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(RobolectricTestRunner.class)
 public final class GameResultsCoordinatorTest {
@@ -80,6 +81,25 @@ public final class GameResultsCoordinatorTest {
         assertEquals(1, callback.loadedCount);
         assertEquals(0, callback.errorCount);
         assertEquals(0, callback.data.getHighScore());
+    }
+
+    @Test
+    public void saveAndReportNewHighScoreReportsOnlyAStrictPersonalRecord() {
+        Harness harness = new Harness();
+        AtomicReference<Boolean> firstResult = new AtomicReference<>();
+        AtomicReference<Boolean> tiedResult = new AtomicReference<>();
+
+        harness.coordinator.saveAndReportNewHighScore(7L, result(5, 1_000L), firstResult::set);
+        harness.databaseExecutor.runAll();
+        harness.mainDispatcher.runAll();
+        assertEquals(Boolean.TRUE, firstResult.get());
+
+        harness.coordinator.saveAndReportNewHighScore(7L, result(5, 2_000L), tiedResult::set);
+        harness.databaseExecutor.runAll();
+        harness.mainDispatcher.runAll();
+
+        assertEquals(Boolean.FALSE, tiedResult.get());
+        assertEquals(5, harness.repository.getHighScore(7L));
     }
 
     @Test

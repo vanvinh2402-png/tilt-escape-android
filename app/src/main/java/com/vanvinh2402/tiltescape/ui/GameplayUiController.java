@@ -20,6 +20,7 @@ public final class GameplayUiController {
     private final GameResultRecorder resultRecorder;
     private final BooleanSupplier achievementsVisible;
     private final BooleanSupplier mainMenuAllowed;
+    private final NewRecordUiController newRecordUiController;
     private final TextView scoreText;
     private final TextView finalScoreText;
     private final View stateOverlay;
@@ -44,6 +45,12 @@ public final class GameplayUiController {
     public GameplayUiController(Activity activity, GameEngine engine, GameView gameView,
             GameResultRecorder resultRecorder, BooleanSupplier achievementsVisible,
             BooleanSupplier mainMenuAllowed) {
+        this(activity, engine, gameView, resultRecorder, achievementsVisible, mainMenuAllowed, null);
+    }
+
+    public GameplayUiController(Activity activity, GameEngine engine, GameView gameView,
+            GameResultRecorder resultRecorder, BooleanSupplier achievementsVisible,
+            BooleanSupplier mainMenuAllowed, NewRecordUiController newRecordUiController) {
         this.activity = activity;
         this.engine = engine;
         this.gameView = gameView;
@@ -51,6 +58,7 @@ public final class GameplayUiController {
         this.achievementsVisible = Objects.requireNonNull(
                 achievementsVisible, "achievementsVisible");
         this.mainMenuAllowed = Objects.requireNonNull(mainMenuAllowed, "mainMenuAllowed");
+        this.newRecordUiController = newRecordUiController;
         scoreText = activity.findViewById(R.id.score_text);
         finalScoreText = activity.findViewById(R.id.final_score_text);
         stateOverlay = activity.findViewById(R.id.state_overlay);
@@ -76,6 +84,9 @@ public final class GameplayUiController {
     public void refresh(GameSnapshot snapshot) {
         resultRecorder.observe(snapshot);
         GameState state = snapshot.getState();
+        if (state != GameState.GAME_OVER && newRecordUiController != null) {
+            newRecordUiController.reset();
+        }
         scoreText.setText(activity.getString(R.string.score_format, snapshot.getScore()));
         finalScoreText.setText(activity.getString(R.string.final_score_format, snapshot.getScore()));
         readyPanel.setVisibility(

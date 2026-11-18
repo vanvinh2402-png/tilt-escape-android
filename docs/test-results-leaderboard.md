@@ -20,7 +20,7 @@ $env:JAVA_HOME='C:\Program Files\Android\Android Studio\jbr'
 
 Kết quả:
 
-- 149 unit tests, 0 failures, 0 errors.
+- 149 unit tests, 0 failures, 0 errors tại thời điểm kiểm thử riêng phần Leaderboard.
 - `LeaderboardUiControllerTest`: 3/3 đạt (mở/trạng thái rỗng, dữ liệu có tên + điểm, callback cũ sau khi đóng).
 - `SQLiteGameResultRepositoryTest`: xác minh một người chơi chỉ có một dòng theo điểm cao nhất và thứ tự xếp hạng.
 - Debug APK và signed release APK được tạo thành công.

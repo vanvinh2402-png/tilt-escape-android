@@ -33,6 +33,7 @@
     <string name="main_menu">Màn hình chính</string>
     <string name="game_over">Kết thúc</string>
     <string name="final_score_format">Điểm cuối: %1$d</string>
+    <string name="new_record">KỶ LỤC MỚI!</string>
     <string name="play_again">Chơi lại</string>
     <string name="achievements">Thành tích</string>
     <string name="achievements_title">THÀNH TÍCH</string>

@@ -54,6 +54,24 @@ public final class GameResultsCoordinator implements AchievementsLoader, Leaderb
         });
     }
 
+    public void saveAndReportNewHighScore(long userId, GameResult result,
+            Consumer<Boolean> callback) {
+        if (userId <= 0L) throw new IllegalArgumentException("userId must be positive");
+        Objects.requireNonNull(result, "result");
+        Objects.requireNonNull(callback, "callback");
+        submit(() -> {
+            try {
+                int previousHighScore = repository.getHighScore(userId);
+                repository.insert(userId, result);
+                boolean isNewHighScore = result.getScore() > previousHighScore;
+                dispatch(() -> callback.accept(isNewHighScore));
+            } catch (RuntimeException error) {
+                Log.e(TAG, "Unable to save game result", error);
+                dispatch(() -> callback.accept(false));
+            }
+        });
+    }
+
     @Override
     public void loadAchievements(long userId, Callback callback) {
         if (userId <= 0L) throw new IllegalArgumentException("userId must be positive");

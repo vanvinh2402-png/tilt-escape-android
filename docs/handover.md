@@ -10,6 +10,7 @@ Tilt Escape hiện là ứng dụng Android Java có thể build, cài đặt v�
 - Kết quả kiểm thử giao diện: [test-results-neon-focus-ui.md](test-results-neon-focus-ui.md)
 - Kết quả kiểm thử Hướng dẫn chơi: [test-results-how-to-play.md](test-results-how-to-play.md)
 - Kết quả kiểm thử Bảng xếp hạng: [test-results-leaderboard.md](test-results-leaderboard.md)
+- Kết quả kiểm thử Kỷ lục mới: [test-results-new-record.md](test-results-new-record.md)
 - Hướng dẫn ký release: [release-signing.md](release-signing.md)
 - Hướng dẫn build, cài đặt và sử dụng: tài liệu này và `README.md`
 
@@ -43,7 +44,7 @@ Tilt Escape hiện là ứng dụng Android Java có thể build, cài đặt v�
 | Độ nhạy | 5 | R17 | Có lọc, dead zone, giới hạn di chuyển và ba mức tùy chỉnh từ Settings |
 | Chướng ngại vật | 5 | R18–R20 | Hoàn thành sinh ở nhiều lane, chuyển động, loại bỏ và sinh lượt mới |
 | Điểm số | 5 | R21–R24 | Điểm bắt đầu từ 0, cộng 1 cho mỗi vật né được, tăng độ khó theo thời gian và lưu điểm cao cá nhân |
-| Va chạm | 5, 7 | R25–R28 | Hoàn thành va chạm, dừng game, điểm cuối và Game Over |
+| Va chạm | 5, 7 | R25–R28 | Hoàn thành va chạm, dừng game, điểm cuối, Game Over và thông báo Kỷ lục mới khi vượt điểm cao nhất cá nhân |
 | Điều khiển ván | 6, 7 | R29–R32 | Hoàn thành Play Again, Restart, Pause, Resume và Main Menu |
 | Đăng xuất | 3 | R33–R35 | Hoàn thành xóa phiên và quay lại Login |
 | Vòng đời | 5, 6 | R66 | Tự Pause khi ứng dụng xuống nền, không tạo vòng lặp hoặc đăng ký cảm biến trùng |
@@ -56,7 +57,6 @@ R22 trong SRS mô tả tăng điểm theo thời gian sống sót. Theo quyết 
 
 | Nội dung | Frame hoặc mã yêu cầu | Trạng thái thực tế |
 |---|---|---|
-| Thông báo kỷ lục mới tại Game Over | Frame 7 | Chưa hiển thị; điểm cao nhất vẫn được lưu và xem tại Thành tích |
 | Tương thích nhiều kích thước màn hình | R43 | Đã kiểm tra Pixel 7 và test insets API 24/35; chưa nghiệm thu thủ công trên nhiều thiết bị thật |
 | Ổn định khi xem Leaderboard | R45 | Đã có xử lý callback cũ sau khi đóng màn hình; kiểm tra thủ công Pixel 7 vẫn chờ ADB |
 | Thiết bị Android thật | Tiêu chí nghiệm thu | Chưa kiểm thử; hiện đã kiểm thử trên Android Emulator Pixel 7 |
@@ -130,7 +130,7 @@ Trên Android Emulator, mở Extended Controls, chọn Virtual sensors rồi Dev
 | TC12 | Restart/Play Again | Tạo ván mới và đưa điểm về 0 | Đạt |
 | TC13 | Mở Thành tích sau Game Over | Lưu điểm cao và lịch sử theo tài khoản | Đạt |
 | TC14 | Force-stop và mở lại | SQLite và phiên còn tồn tại | Đạt |
-| TC15 | Chạy unit test và Android Lint | Không có test thất bại hoặc lint error | Đạt: 145 test, 0 lỗi; lint 0 error |
+| TC15 | Chạy unit test và Android Lint | Không có test thất bại hoặc lint error | Đạt: 151 test, 0 failures, 0 errors; lint 0 error |
 | TC18 | Đổi độ nhạy nghiêng | Thấp/Trung bình/Cao được lưu và áp dụng | Đạt tự động; kiểm tra Pixel 7 chờ ADB |
 | TC16 | Xác minh chữ ký release | APK xác minh bằng apksigner | Đạt: v2, một signer |
 | TC17 | Mở Hướng dẫn chơi trên Pixel 7 | Mở, Quay lại và Bắt đầu chơi đúng luồng | Chờ kiểm tra: giả lập chưa kết nối ADB vào ngày 2026-11-18 |

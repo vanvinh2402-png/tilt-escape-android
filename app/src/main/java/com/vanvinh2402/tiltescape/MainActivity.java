@@ -23,6 +23,7 @@ import com.vanvinh2402.tiltescape.ui.GameView;
 import com.vanvinh2402.tiltescape.ui.GameplayUiController;
 import com.vanvinh2402.tiltescape.ui.HowToPlayUiController;
 import com.vanvinh2402.tiltescape.ui.LeaderboardUiController;
+import com.vanvinh2402.tiltescape.ui.NewRecordUiController;
 import com.vanvinh2402.tiltescape.ui.SystemBarInsets;
 import com.vanvinh2402.tiltescape.ui.SettingsUiController;
 import com.vanvinh2402.tiltescape.auth.AccountCoordinator;
@@ -118,14 +119,20 @@ public final class MainActivity extends AppCompatActivity {
         gameContainer.addView(gameView, 0, new FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.MATCH_PARENT,
                 FrameLayout.LayoutParams.MATCH_PARENT));
-        GameResultRecorder resultRecorder = new GameResultRecorder(
-                gameResultsCoordinator::save,
+        NewRecordUiController newRecordUiController = new NewRecordUiController(this);
+        GameResultRecorder resultRecorder = new GameResultRecorder((userId, result) -> {
+                int resultGeneration = newRecordUiController.beginPendingResult();
+                gameResultsCoordinator.saveAndReportNewHighScore(userId, result,
+                        isNewRecord -> newRecordUiController.onRecordSaved(
+                                resultGeneration, isNewRecord));
+            },
                 activeSession::requireUserId,
                 System::currentTimeMillis);
         gameplayUiController = new GameplayUiController(
                 this, engine, gameView, resultRecorder,
                 achievementsUiController::isVisible,
-                authUiController::isMainMenuAllowed);
+                authUiController::isMainMenuAllowed,
+                newRecordUiController);
         gameplayUiController.bind();
         howToPlayUiController = new HowToPlayUiController(
                 this, engine, authUiController::isMainMenuAllowed,
