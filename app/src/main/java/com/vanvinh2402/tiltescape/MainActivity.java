@@ -92,6 +92,7 @@ public final class MainActivity extends AppCompatActivity {
             sensorStatus.setText(R.string.sensor_unavailable);
             sensorStatus.setVisibility(View.VISIBLE);
             findViewById(R.id.start_button).setEnabled(false);
+            findViewById(R.id.how_to_play_button).setVisibility(View.GONE);
             return;
         }
 

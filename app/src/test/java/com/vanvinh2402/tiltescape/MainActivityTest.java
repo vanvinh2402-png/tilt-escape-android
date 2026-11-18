@@ -80,6 +80,7 @@ public final class MainActivityTest {
             assertEquals(View.VISIBLE, activity.findViewById(R.id.login_panel).getVisibility());
             assertEquals(View.GONE, activity.findViewById(R.id.ready_panel).getVisibility());
             assertTrue(!activity.findViewById(R.id.start_button).isEnabled());
+            assertEquals(View.GONE, activity.findViewById(R.id.how_to_play_button).getVisibility());
             assertSame(root, hud.getParent());
             assertSame(root, gameContainer.getParent());
             assertTrue(root.indexOfChild(hud) < root.indexOfChild(gameContainer));
