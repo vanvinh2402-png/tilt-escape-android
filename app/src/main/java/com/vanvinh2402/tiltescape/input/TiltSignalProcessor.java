@@ -10,6 +10,7 @@ public final class TiltSignalProcessor implements TiltInput {
     private long lastTimestampNanos;
     private float filteredTiltG;
     private float horizontalInput;
+    private float sensitivityMultiplier = 1.0f;
 
     public void onSample(float rawX, long timestampNanos) {
         if (!Float.isFinite(rawX) || timestampNanos <= 0L) {
@@ -21,7 +22,7 @@ public final class TiltSignalProcessor implements TiltInput {
             initialized = true;
             lastTimestampNanos = timestampNanos;
             filteredTiltG = normalizedTiltG;
-            horizontalInput = applyDeadZone(filteredTiltG);
+            horizontalInput = applyDeadZone(filteredTiltG * sensitivityMultiplier);
             return;
         }
 
@@ -33,7 +34,7 @@ public final class TiltSignalProcessor implements TiltInput {
         float alpha = 1.0f - (float) Math.exp(-deltaSeconds / FILTER_TIME_CONSTANT_SECONDS);
         filteredTiltG += alpha * (normalizedTiltG - filteredTiltG);
         lastTimestampNanos = timestampNanos;
-        horizontalInput = applyDeadZone(filteredTiltG);
+        horizontalInput = applyDeadZone(filteredTiltG * sensitivityMultiplier);
     }
 
     public void reset() {
@@ -41,6 +42,12 @@ public final class TiltSignalProcessor implements TiltInput {
         lastTimestampNanos = 0L;
         filteredTiltG = 0.0f;
         horizontalInput = 0.0f;
+    }
+
+    public void setSensitivityMultiplier(float multiplier) {
+        sensitivityMultiplier = Float.isFinite(multiplier) && multiplier > 0.0f
+                ? multiplier : 1.0f;
+        horizontalInput = applyDeadZone(filteredTiltG * sensitivityMultiplier);
     }
 
     @Override

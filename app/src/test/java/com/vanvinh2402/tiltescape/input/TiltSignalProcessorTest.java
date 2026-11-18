@@ -89,4 +89,22 @@ public final class TiltSignalProcessorTest {
         processor.onSample(0.0f, 1L);
         assertEquals(0.0f, processor.getHorizontalInput(), EPSILON);
     }
+
+    @Test
+    public void sensitivityChangesResponseButKeepsItClamped() {
+        TiltSignalProcessor processor = new TiltSignalProcessor();
+        processor.onSample(-0.34f * GRAVITY, 1_000_000_000L);
+        float medium = processor.getHorizontalInput();
+
+        processor.setSensitivityMultiplier(TiltSensitivity.HIGH.getMultiplier());
+        float high = processor.getHorizontalInput();
+        processor.setSensitivityMultiplier(TiltSensitivity.LOW.getMultiplier());
+        float low = processor.getHorizontalInput();
+
+        assertTrue(high > medium);
+        assertTrue(low < medium);
+        processor.setSensitivityMultiplier(100.0f);
+        assertTrue(processor.getHorizontalInput() <= 1.0f);
+        assertTrue(processor.getHorizontalInput() >= -1.0f);
+    }
 }
