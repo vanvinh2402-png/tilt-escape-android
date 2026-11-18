@@ -1,13 +1,14 @@
 # Hồ sơ bàn giao Tilt Escape 1.0
 
-Tilt Escape hiện là ứng dụng Android Java có thể build, cài đặt và chơi được bằng cảm biến gia tốc. Gameplay cốt lõi, tài khoản local, SQLite, điểm cá nhân và giao diện Neon Focus đã hoàn thành. So với SRS phiên bản 1.0, sản phẩm chưa hoàn thành ba màn hình How to Play, Settings và Leaderboard; các phần này được liệt kê rõ để nghiệm thu đúng phạm vi thực tế.
+Tilt Escape hiện là ứng dụng Android Java có thể build, cài đặt và chơi được bằng cảm biến gia tốc. Gameplay cốt lõi, tài khoản local, SQLite, điểm cá nhân, giao diện Neon Focus và màn Hướng dẫn chơi đã hoàn thành. So với SRS phiên bản 1.0, sản phẩm chưa hoàn thành Settings và Leaderboard; các phần này được liệt kê rõ để nghiệm thu đúng phạm vi thực tế.
 
 ## Thành phần bàn giao
 
 - Mã nguồn: nhánh `main` tại https://github.com/vanvinh2402-png/tilt-escape-android
 - APK release đã ký: `app/build/outputs/apk/release/app-release.apk`
 - Cấu trúc SQLite: [database-schema.md](database-schema.md)
-- Kết quả kiểm thử: [test-results-neon-focus-ui.md](test-results-neon-focus-ui.md)
+- Kết quả kiểm thử giao diện: [test-results-neon-focus-ui.md](test-results-neon-focus-ui.md)
+- Kết quả kiểm thử Hướng dẫn chơi: [test-results-how-to-play.md](test-results-how-to-play.md)
 - Hướng dẫn ký release: [release-signing.md](release-signing.md)
 - Hướng dẫn build, cài đặt và sử dụng: tài liệu này và `README.md`
 
@@ -32,7 +33,8 @@ Tilt Escape hiện là ứng dụng Android Java có thể build, cài đặt v�
 |---|---:|---|---|
 | Đăng ký | 2 | R01–R05 | Hoàn thành kiểm tra dữ liệu, chống trùng tên, PBKDF2 và lưu SQLite |
 | Đăng nhập | 1 | R06–R09 | Hoàn thành xác thực, thông báo lỗi và phiên đăng nhập local |
-| Main Menu | 3 | R10 | Hoàn thành thông tin người chơi, Start, Thành tích và Logout; chưa có How to Play/Settings |
+| Main Menu | 3 | R10 | Hoàn thành thông tin người chơi, Start, Hướng dẫn chơi, Thành tích và Logout; chưa có Settings |
+| Hướng dẫn chơi | 4 | R59 | Hoàn thành màn riêng hướng dẫn nghiêng máy, né vật cản để cộng điểm, va chạm kết thúc; có Bắt đầu chơi, Quay lại và phím Back |
 | Khởi động game | 3, 5 | R11–R13 | Hoàn thành reset ván, điểm 0, khu vực chơi và HUD |
 | Cảm biến | 5 | R14–R16 | Hoàn thành phát hiện accelerometer, đọc mẫu và điều khiển trái/phải |
 | Độ nhạy | 5 | R17 | Có lọc, dead zone và giới hạn di chuyển; chưa có tùy chỉnh từ Settings |
@@ -51,7 +53,6 @@ R22 trong SRS mô tả tăng điểm theo thời gian sống sót. Theo quyết 
 
 | Nội dung | Frame hoặc mã yêu cầu | Trạng thái thực tế |
 |---|---|---|
-| Màn How to Play riêng | Frame 4, R59 | Chưa có; hướng dẫn nghiêng máy chỉ hiển thị ngắn tại Main Menu |
 | Màn Settings | Frame 8, R60 | Chưa có |
 | Lưu và áp dụng mức Tilt Sensitivity do người dùng chọn | R61 | Chưa có; ứng dụng dùng thông số cố định đã cân chỉnh |
 | Leaderboard nhiều người chơi | Frame 9, R62–R63 | Chưa có |
@@ -103,11 +104,12 @@ Bản debug và release dùng khóa khác nhau nên không thể cài đè lẫn
 1. Mở ứng dụng và chọn **Tạo tài khoản**.
 2. Nhập tên người dùng 3–20 ký tự gồm chữ, số hoặc dấu gạch dưới; nhập mật khẩu ít nhất 6 ký tự và xác nhận.
 3. Đăng nhập bằng tài khoản vừa tạo.
-4. Chọn **Bắt đầu** và nghiêng điện thoại sang trái hoặc phải để di chuyển.
-5. Mỗi chướng ngại vật đi hết màn hình mà không va chạm sẽ cộng 1 điểm.
-6. Dùng **Tạm dừng**, **Tiếp tục**, **Chơi lại** hoặc **Màn hình chính** để điều khiển ván.
-7. Chọn **Thành tích** tại Main Menu để xem điểm cao nhất và 10 lượt gần nhất của tài khoản.
-8. Chọn **Đăng xuất** để kết thúc phiên local.
+4. Chọn **Hướng dẫn chơi** để xem cách điều khiển, cách tính điểm và điều kiện kết thúc; chọn **Bắt đầu chơi** hoặc **Quay lại**.
+5. Chọn **Bắt đầu** và nghiêng điện thoại sang trái hoặc phải để di chuyển.
+6. Mỗi chướng ngại vật đi hết màn hình mà không va chạm sẽ cộng 1 điểm.
+7. Dùng **Tạm dừng**, **Tiếp tục**, **Chơi lại** hoặc **Màn hình chính** để điều khiển ván.
+8. Chọn **Thành tích** tại Main Menu để xem điểm cao nhất và 10 lượt gần nhất của tài khoản.
+9. Chọn **Đăng xuất** để kết thúc phiên local.
 
 Trên Android Emulator, mở Extended Controls, chọn Virtual sensors rồi Device Pose để mô phỏng nghiêng thiết bị.
 
@@ -129,16 +131,17 @@ Trên Android Emulator, mở Extended Controls, chọn Virtual sensors rồi Dev
 | TC12 | Restart/Play Again | Tạo ván mới và đưa điểm về 0 | Đạt |
 | TC13 | Mở Thành tích sau Game Over | Lưu điểm cao và lịch sử theo tài khoản | Đạt |
 | TC14 | Force-stop và mở lại | SQLite và phiên còn tồn tại | Đạt |
-| TC15 | Chạy unit test và Android Lint | Không có test thất bại hoặc lint error | Đạt: 138 test, 0 lỗi; lint 0 error |
+| TC15 | Chạy unit test và Android Lint | Không có test thất bại hoặc lint error | Đạt: 141 test, 0 lỗi; lint 0 error |
 | TC16 | Xác minh chữ ký release | APK xác minh bằng apksigner | Đạt: v2, một signer |
+| TC17 | Mở Hướng dẫn chơi trên Pixel 7 | Mở, Quay lại và Bắt đầu chơi đúng luồng | Chờ kiểm tra: giả lập chưa kết nối ADB vào ngày 2026-11-18 |
 
 Lần cài sạch release cuối ngày 2026-11-06 trên `emulator-5554` thành công; ứng dụng mở màn Login, không ghi nhận fatal exception, ANR hoặc SQLite exception.
 
 ## Thông tin APK release
 
 - Tệp: `app/build/outputs/apk/release/app-release.apk`
-- Kích thước: 2,552,728 byte
-- SHA-256: `C0E25CBBF4B03F3627FB21944617FAF8AB2E4DCC15CE637E509C60AEA8AE2C40`
+- Kích thước: 2,556,564 byte
+- SHA-256: `414F799801D570120455868C9A4850FD92C7527CFA829B84C8C2639C337B9BA0`
 - Chữ ký: APK Signature Scheme v2, RSA 4096
 - Certificate SHA-256: `84c6febb235863b8a9cf271ed88322c85616c013158fd7c22963b04feaf13bf0`
 
