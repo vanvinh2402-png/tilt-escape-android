@@ -5,12 +5,13 @@ import android.os.Looper;
 import android.util.Log;
 
 import java.util.Objects;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
-public final class GameResultsCoordinator implements AchievementsLoader, AutoCloseable {
+public final class GameResultsCoordinator implements AchievementsLoader, LeaderboardLoader, AutoCloseable {
     private static final String TAG = "GameResults";
     private static final int RECENT_LIMIT = 10;
 
@@ -65,6 +66,21 @@ public final class GameResultsCoordinator implements AchievementsLoader, AutoClo
                 dispatch(() -> callback.onLoaded(data));
             } catch (RuntimeException error) {
                 Log.e(TAG, "Unable to load achievements", error);
+                dispatch(callback::onError);
+            }
+        });
+    }
+
+    @Override
+    public void loadLeaderboard(int limit, LeaderboardLoader.Callback callback) {
+        if (limit <= 0) throw new IllegalArgumentException("limit must be positive");
+        Objects.requireNonNull(callback, "callback");
+        submit(() -> {
+            try {
+                List<LeaderboardEntry> entries = repository.getLeaderboard(limit);
+                dispatch(() -> callback.onLoaded(entries));
+            } catch (RuntimeException error) {
+                Log.e(TAG, "Unable to load leaderboard", error);
                 dispatch(callback::onError);
             }
         });

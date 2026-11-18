@@ -1,6 +1,6 @@
 # Hồ sơ bàn giao Tilt Escape 1.0
 
-Tilt Escape hiện là ứng dụng Android Java có thể build, cài đặt và chơi được bằng cảm biến gia tốc. Gameplay cốt lõi, tài khoản local, SQLite, điểm cá nhân, giao diện Neon Focus, Hướng dẫn chơi và Cài đặt độ nhạy nghiêng đã hoàn thành. So với SRS phiên bản 1.0, sản phẩm chưa hoàn thành Leaderboard; các phần này được liệt kê rõ để nghiệm thu đúng phạm vi thực tế.
+Tilt Escape hiện là ứng dụng Android Java có thể build, cài đặt và chơi được bằng cảm biến gia tốc. Gameplay cốt lõi, tài khoản local, SQLite, điểm cá nhân, Leaderboard local, giao diện Neon Focus, Hướng dẫn chơi và Cài đặt độ nhạy nghiêng đã hoàn thành.
 
 ## Thành phần bàn giao
 
@@ -9,6 +9,7 @@ Tilt Escape hiện là ứng dụng Android Java có thể build, cài đặt v�
 - Cấu trúc SQLite: [database-schema.md](database-schema.md)
 - Kết quả kiểm thử giao diện: [test-results-neon-focus-ui.md](test-results-neon-focus-ui.md)
 - Kết quả kiểm thử Hướng dẫn chơi: [test-results-how-to-play.md](test-results-how-to-play.md)
+- Kết quả kiểm thử Bảng xếp hạng: [test-results-leaderboard.md](test-results-leaderboard.md)
 - Hướng dẫn ký release: [release-signing.md](release-signing.md)
 - Hướng dẫn build, cài đặt và sử dụng: tài liệu này và `README.md`
 
@@ -36,6 +37,7 @@ Tilt Escape hiện là ứng dụng Android Java có thể build, cài đặt v�
 | Main Menu | 3 | R10 | Hoàn thành thông tin người chơi, Start, Hướng dẫn chơi, Cài đặt, Thành tích và Logout |
 | Hướng dẫn chơi | 4 | R59 | Hoàn thành màn riêng hướng dẫn nghiêng máy, né vật cản để cộng điểm, va chạm kết thúc; có Bắt đầu chơi, Quay lại và phím Back |
 | Cài đặt | 8 | R60–R61 | Hoàn thành ba mức độ nhạy nghiêng, lưu local và áp dụng ngay; có Quay lại và phím Back |
+| Leaderboard | 9 | R62–R65 | Hoàn thành bảng xếp hạng local: một dòng/tài khoản theo điểm cao nhất, sắp xếp giảm dần, tối đa 10 dòng, có trạng thái rỗng và Quay lại/phím Back |
 | Khởi động game | 3, 5 | R11–R13 | Hoàn thành reset ván, điểm 0, khu vực chơi và HUD |
 | Cảm biến | 5 | R14–R16 | Hoàn thành phát hiện accelerometer, đọc mẫu và điều khiển trái/phải |
 | Độ nhạy | 5 | R17 | Có lọc, dead zone, giới hạn di chuyển và ba mức tùy chỉnh từ Settings |
@@ -54,12 +56,9 @@ R22 trong SRS mô tả tăng điểm theo thời gian sống sót. Theo quyết 
 
 | Nội dung | Frame hoặc mã yêu cầu | Trạng thái thực tế |
 |---|---|---|
-| Leaderboard nhiều người chơi | Frame 9, R62–R63 | Chưa có |
-| Điểm theo tài khoản | R64 | Đã lưu và truy xuất theo tài khoản, nhưng chỉ hiển thị Thành tích cá nhân |
-| Trạng thái Leaderboard rỗng/ít dữ liệu | R65 | Thành tích cá nhân có trạng thái rỗng; chưa có Leaderboard để nghiệm thu đầy đủ |
 | Thông báo kỷ lục mới tại Game Over | Frame 7 | Chưa hiển thị; điểm cao nhất vẫn được lưu và xem tại Thành tích |
 | Tương thích nhiều kích thước màn hình | R43 | Đã kiểm tra Pixel 7 và test insets API 24/35; chưa nghiệm thu thủ công trên nhiều thiết bị thật |
-| Ổn định khi xem Leaderboard | R45 | Các luồng hiện có không crash; phần Leaderboard chưa tồn tại |
+| Ổn định khi xem Leaderboard | R45 | Đã có xử lý callback cũ sau khi đóng màn hình; kiểm tra thủ công Pixel 7 vẫn chờ ADB |
 | Thiết bị Android thật | Tiêu chí nghiệm thu | Chưa kiểm thử; hiện đã kiểm thử trên Android Emulator Pixel 7 |
 
 Âm thanh, rung, chơi trực tuyến, cửa hàng vật phẩm, nhiều nhân vật và nhiều bản đồ không được triển khai vì nằm ngoài phạm vi cốt lõi hoặc là tùy chọn.
@@ -108,7 +107,8 @@ Bản debug và release dùng khóa khác nhau nên không thể cài đè lẫn
 6. Mỗi chướng ngại vật đi hết màn hình mà không va chạm sẽ cộng 1 điểm.
 7. Dùng **Tạm dừng**, **Tiếp tục**, **Chơi lại** hoặc **Màn hình chính** để điều khiển ván.
 8. Chọn **Thành tích** tại Main Menu để xem điểm cao nhất và 10 lượt gần nhất của tài khoản.
-9. Chọn **Đăng xuất** để kết thúc phiên local.
+9. Chọn **Bảng xếp hạng** để xem tối đa 10 tài khoản, mỗi tài khoản hiển thị điểm cao nhất local.
+10. Chọn **Đăng xuất** để kết thúc phiên local.
 
 Trên Android Emulator, mở Extended Controls, chọn Virtual sensors rồi Device Pose để mô phỏng nghiêng thiết bị.
 

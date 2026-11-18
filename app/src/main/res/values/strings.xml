@@ -23,6 +23,10 @@
     <string name="sensitivity_medium">Trung bình</string>
     <string name="sensitivity_high">Cao</string>
     <string name="settings_back">Quay lại</string>
+    <string name="leaderboard">Bảng xếp hạng</string>
+    <string name="leaderboard_title">BẢNG XẾP HẠNG</string>
+    <string name="leaderboard_empty">Chưa có điểm để xếp hạng</string>
+    <string name="leaderboard_back">Quay lại</string>
     <string name="paused">Đã tạm dừng</string>
     <string name="resume">Tiếp tục</string>
     <string name="restart">Chơi lại</string>

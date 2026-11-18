@@ -22,6 +22,7 @@ import com.vanvinh2402.tiltescape.ui.AuthUiController;
 import com.vanvinh2402.tiltescape.ui.GameView;
 import com.vanvinh2402.tiltescape.ui.GameplayUiController;
 import com.vanvinh2402.tiltescape.ui.HowToPlayUiController;
+import com.vanvinh2402.tiltescape.ui.LeaderboardUiController;
 import com.vanvinh2402.tiltescape.ui.SystemBarInsets;
 import com.vanvinh2402.tiltescape.ui.SettingsUiController;
 import com.vanvinh2402.tiltescape.auth.AccountCoordinator;
@@ -38,6 +39,7 @@ public final class MainActivity extends AppCompatActivity {
     private GameSessionController sessionController;
     private GameplayUiController gameplayUiController;
     private AchievementsUiController achievementsUiController;
+    private LeaderboardUiController leaderboardUiController;
     private HowToPlayUiController howToPlayUiController;
     private SettingsUiController settingsUiController;
     private GameResultsCoordinator gameResultsCoordinator;
@@ -74,11 +76,14 @@ public final class MainActivity extends AppCompatActivity {
         achievementsUiController = new AchievementsUiController(
                 this, engine, gameResultsCoordinator, activeSession::requireUserId);
         achievementsUiController.bind();
+        leaderboardUiController = new LeaderboardUiController(this, engine, gameResultsCoordinator);
+        leaderboardUiController.bind();
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
                 if (settingsUiController != null && settingsUiController.handleBack()) return;
                 if (howToPlayUiController != null && howToPlayUiController.handleBack()) return;
+                if (leaderboardUiController != null && leaderboardUiController.handleBack()) return;
                 if (achievementsUiController.handleBack()) return;
                 if (authUiController.handleBack()) return;
                 setEnabled(false);
