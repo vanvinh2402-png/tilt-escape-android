@@ -9,6 +9,13 @@
     <string name="playfield_description">Khu vực chơi Tilt Escape</string>
     <string name="game_title">TILT ESCAPE</string>
     <string name="start_game">Bắt đầu</string>
+    <string name="how_to_play">Hướng dẫn chơi</string>
+    <string name="how_to_play_title">CÁCH CHƠI</string>
+    <string name="how_to_play_move">Nghiêng điện thoại sang trái hoặc phải để di chuyển nhân vật.</string>
+    <string name="how_to_play_score">Né mỗi chướng ngại vật để nhận 1 điểm.</string>
+    <string name="how_to_play_game_over">Va chạm với chướng ngại vật sẽ kết thúc lượt chơi.</string>
+    <string name="how_to_play_start">Bắt đầu chơi</string>
+    <string name="how_to_play_back">Quay lại</string>
     <string name="paused">Đã tạm dừng</string>
     <string name="resume">Tiếp tục</string>
     <string name="restart">Chơi lại</string>

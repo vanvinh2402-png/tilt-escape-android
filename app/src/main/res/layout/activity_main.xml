@@ -324,6 +324,14 @@
                     android:text="@string/start_game" />
 
                 <Button
+                    android:id="@+id/how_to_play_button"
+                    style="@style/Widget.TiltEscape.Button.Secondary"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:text="@string/how_to_play" />
+
+                <Button
                     android:id="@+id/achievements_button"
                     style="@style/Widget.TiltEscape.Button.Secondary"
                     android:layout_width="match_parent"
@@ -339,6 +347,75 @@
                     android:layout_marginTop="8dp"
                     android:text="@string/logout" />
             </LinearLayout>
+
+            <ScrollView
+                android:id="@+id/how_to_play_panel"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/bg_app_gradient"
+                android:clipToPadding="false"
+                android:fillViewport="true"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="@dimen/screen_padding">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/bg_neon_card"
+                        android:orientation="vertical"
+                        android:padding="@dimen/card_padding">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="@string/how_to_play_title"
+                            android:textAppearance="@style/TextAppearance.TiltEscape.Title" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:text="@string/how_to_play_move"
+                            android:textAppearance="@style/TextAppearance.TiltEscape.Secondary" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/control_spacing"
+                            android:text="@string/how_to_play_score"
+                            android:textAppearance="@style/TextAppearance.TiltEscape.Secondary" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/control_spacing"
+                            android:text="@string/how_to_play_game_over"
+                            android:textAppearance="@style/TextAppearance.TiltEscape.Secondary" />
+
+                        <Button
+                            android:id="@+id/how_to_play_start_button"
+                            style="@style/Widget.TiltEscape.Button.Primary"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="20dp"
+                            android:text="@string/how_to_play_start" />
+
+                        <Button
+                            android:id="@+id/how_to_play_back_button"
+                            style="@style/Widget.TiltEscape.Button.Secondary"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="@string/how_to_play_back" />
+                    </LinearLayout>
+                </LinearLayout>
+            </ScrollView>
 
             <LinearLayout
                 android:id="@+id/pause_panel"

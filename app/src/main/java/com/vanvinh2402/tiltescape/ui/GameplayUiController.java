@@ -63,7 +63,7 @@ public final class GameplayUiController {
     public void bind() {
         if (bound) return;
         bound = true;
-        activity.findViewById(R.id.start_button).setOnClickListener(view -> start());
+        activity.findViewById(R.id.start_button).setOnClickListener(view -> startFromExternalAction());
         pauseButton.setOnClickListener(view -> pause());
         activity.findViewById(R.id.resume_button).setOnClickListener(view -> resume());
         activity.findViewById(R.id.restart_button).setOnClickListener(view -> restart());
@@ -88,7 +88,7 @@ public final class GameplayUiController {
         stateOverlay.setVisibility(state == GameState.PLAYING ? View.GONE : View.VISIBLE);
     }
 
-    private void start() {
+    public void startFromExternalAction() {
         if (engine.getState() != GameState.READY || !mainMenuAllowed.getAsBoolean()) return;
         engine.startNewRun();
         gameView.start();

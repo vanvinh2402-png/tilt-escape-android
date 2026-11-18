@@ -17,6 +17,7 @@ import android.view.ViewParent;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Button;
+import android.widget.ScrollView;
 
 import com.vanvinh2402.tiltescape.ui.GameView;
 
@@ -254,6 +255,39 @@ public final class MainActivityTest {
                     shadowOf(back.getBackground()).getCreatedFromResId());
             assertEquals(R.drawable.bg_result_item,
                     shadowOf(resultRow.getBackground()).getCreatedFromResId());
+        }
+    }
+
+    @Test
+    public void howToPlayPanelKeepsActionsReachable() {
+        try (ActivityController<MainActivity> controller =
+                     Robolectric.buildActivity(MainActivity.class).setup()) {
+            MainActivity activity = controller.get();
+            int panelId = activity.getResources().getIdentifier(
+                    "how_to_play_panel", "id", activity.getPackageName());
+            int menuButtonId = activity.getResources().getIdentifier(
+                    "how_to_play_button", "id", activity.getPackageName());
+            int startButtonId = activity.getResources().getIdentifier(
+                    "how_to_play_start_button", "id", activity.getPackageName());
+            int backButtonId = activity.getResources().getIdentifier(
+                    "how_to_play_back_button", "id", activity.getPackageName());
+
+            assertTrue("how_to_play_panel must exist", panelId != 0);
+            assertTrue("how_to_play_button must exist", menuButtonId != 0);
+            assertTrue("how_to_play_start_button must exist", startButtonId != 0);
+            assertTrue("how_to_play_back_button must exist", backButtonId != 0);
+
+            View panel = activity.findViewById(panelId);
+            View menuButton = activity.findViewById(menuButtonId);
+            View startButton = activity.findViewById(startButtonId);
+            View backButton = activity.findViewById(backButtonId);
+            assertNotNull(panel);
+            assertNotNull(menuButton);
+            assertNotNull(startButton);
+            assertNotNull(backButton);
+            assertTrue(panel instanceof ScrollView);
+            assertTrue(isDescendantOf(startButton, panel));
+            assertTrue(isDescendantOf(backButton, panel));
         }
     }
 

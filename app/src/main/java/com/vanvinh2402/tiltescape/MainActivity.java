@@ -20,6 +20,7 @@ import com.vanvinh2402.tiltescape.ui.AchievementsUiController;
 import com.vanvinh2402.tiltescape.ui.AuthUiController;
 import com.vanvinh2402.tiltescape.ui.GameView;
 import com.vanvinh2402.tiltescape.ui.GameplayUiController;
+import com.vanvinh2402.tiltescape.ui.HowToPlayUiController;
 import com.vanvinh2402.tiltescape.ui.SystemBarInsets;
 import com.vanvinh2402.tiltescape.auth.AccountCoordinator;
 import com.vanvinh2402.tiltescape.auth.ActiveSession;
@@ -35,6 +36,7 @@ public final class MainActivity extends AppCompatActivity {
     private GameSessionController sessionController;
     private GameplayUiController gameplayUiController;
     private AchievementsUiController achievementsUiController;
+    private HowToPlayUiController howToPlayUiController;
     private GameResultsCoordinator gameResultsCoordinator;
     private GameView gameView;
     private AuthUiController authUiController;
@@ -72,6 +74,7 @@ public final class MainActivity extends AppCompatActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
+                if (howToPlayUiController != null && howToPlayUiController.handleBack()) return;
                 if (achievementsUiController.handleBack()) return;
                 if (authUiController.handleBack()) return;
                 setEnabled(false);
@@ -82,7 +85,6 @@ public final class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
         AccelerometerTiltInput tiltInput = new AccelerometerTiltInput(
                 this, new TiltSignalProcessor());
         if (!tiltInput.isAvailable()) {
@@ -108,6 +110,10 @@ public final class MainActivity extends AppCompatActivity {
                 achievementsUiController::isVisible,
                 authUiController::isMainMenuAllowed);
         gameplayUiController.bind();
+        howToPlayUiController = new HowToPlayUiController(
+                this, engine, authUiController::isMainMenuAllowed,
+                gameplayUiController::startFromExternalAction);
+        howToPlayUiController.bind();
         gameView.setSnapshotListener(gameplayUiController::refresh);
         gameView.refreshSnapshot();
         findViewById(R.id.state_overlay).bringToFront();
